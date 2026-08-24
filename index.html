@@ -7,7 +7,7 @@
     <!-- Firebase SDK v10 (Modular via CDN) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAC2gf6otaVQBnpdZS5vzLxUUvO5sqYM9o",
@@ -25,12 +25,15 @@
         let unsubscribe = null;
 
         window.initFirebaseSync = function() {
+            // Recupera l'ID salvato o usa quello di default
+            const savedListId = localStorage.getItem('smart_shopping_list_id') || "famiglia-nussbaumer-01";
             const listIdInput = document.getElementById('shared-list-id');
-            const listId = listIdInput ? listIdInput.value.trim() : "famiglia-nussbaumer-01";
+            if (listIdInput && listIdInput.value !== savedListId) {
+                listIdInput.value = savedListId;
+            }
             
-            const docRef = doc(db, "shopping_lists", listId);
+            const docRef = doc(db, "shopping_lists", savedListId);
 
-            // Ascolto in tempo reale da Firestore
             if (unsubscribe) unsubscribe();
 
             unsubscribe = onSnapshot(docRef, (docSnap) => {
@@ -48,7 +51,6 @@
                     saveLocalState();
                     render();
                 } else {
-                    // Se il documento non esiste sul cloud, lo inizializziamo con i dati locali
                     saveCloudState();
                 }
             }, (error) => {
@@ -57,8 +59,7 @@
         };
 
         window.saveCloudState = async function() {
-            const listIdInput = document.getElementById('shared-list-id');
-            const listId = listIdInput ? listIdInput.value.trim() : "famiglia-nussbaumer-01";
+            const listId = localStorage.getItem('smart_shopping_list_id') || "famiglia-nussbaumer-01";
             const docRef = doc(db, "shopping_lists", listId);
             try {
                 await setDoc(docRef, {
@@ -73,10 +74,10 @@
             }
         };
 
-        // Avvia la sync al caricamento
-        setTimeout(() => {
-            if (window.initFirebaseSync) window.initFirebaseSync();
-        }, 500);
+        // Avvio automatico immediato
+        window.addEventListener('DOMContentLoaded', () => {
+            window.initFirebaseSync();
+        });
     </script>
     <style>
         :root {
@@ -142,7 +143,6 @@
             font-weight: 700;
         }
 
-        /* Navigazione Tab Inferiore */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -204,7 +204,6 @@
             gap: 8px;
         }
 
-        /* Griglia Dashboard */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -427,7 +426,6 @@
             font-size: 0.95rem;
         }
 
-        /* Modal personalizzato per conferme e modifiche */
         .modal {
             display: none;
             position: fixed;
@@ -558,13 +556,13 @@
         </div>
 
         <div class="card">
-            <h2>☁️ Sincronizzazione e Condivisione</h2>
+            <h2>☁️ Sincronizzazione Cloud</h2>
             <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 16px;">
-                Condividi questo ID con i tuoi dispositivi o familiari per sincronizzare la lista in tempo reale.
+                Sincronizzazione automatica attiva. Modifica l'ID solo se vuoi collegarti a un'altra lista.
             </p>
             <div class="form-group" style="display: flex; gap: 8px;">
                 <input type="text" id="shared-list-id" value="famiglia-nussbaumer-01">
-                <button type="button" onclick="changeSharedList()" style="padding: 0 16px; font-size: 0.85rem;">Salva / Connetti</button>
+                <button type="button" onclick="changeSharedList()" style="padding: 0 16px; font-size: 0.85rem;">Aggiorna ID</button>
             </div>
         </div>
     </div>
@@ -641,7 +639,6 @@
             localStorage.setItem('smart_shopping_categories', JSON.stringify(categories));
         }
 
-        // Salva in locale e sincronizza su Cloud
         function saveState() {
             saveLocalState();
             if (window.saveCloudState) {
@@ -656,15 +653,8 @@
                 if (window.initFirebaseSync) {
                     window.initFirebaseSync();
                 }
-                alert("Connesso alla lista: " + newId);
+                alert("ID lista aggiornato con successo: " + newId);
             }
-        }
-
-        // Carica ID lista salvato se presente
-        const savedListId = localStorage.getItem('smart_shopping_list_id');
-        if (savedListId) {
-            const listInput = document.getElementById('shared-list-id');
-            if (listInput) listInput.value = savedListId;
         }
 
         function toggleTheme() {
