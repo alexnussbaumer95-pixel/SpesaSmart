@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Spesa Smart Dashboard</title>
+    <!-- Firebase SDK v10 (Modular via CDN) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAC2gf6otaVQBnpdZS5vzLxUUvO5sqYM9o",
+            authDomain: "spesa-smart-8be21.firebaseapp.com",
+            projectId: "spesa-smart-8be21",
+            storageBucket: "spesa-smart-8be21.firebasestorage.app",
+            messagingSenderId: "546460766672",
+            appId: "1:546460766672:web:c53a6e5de7887c083469d5",
+            measurementId: "G-S9TP0W451H"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let unsubscribe = null;
+
+        window.initFirebaseSync = function() {
+            const listIdInput = document.getElementById('shared-list-id');
+            const listId = listIdInput ? listIdInput.value.trim() : "famiglia-nussbaumer-01";
+            
+            const docRef = doc(db, "shopping_lists", listId);
+
+            // Ascolto in tempo reale da Firestore
+            if (unsubscribe) unsubscribe();
+
+            unsubscribe = onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const cloudData = docSnap.data();
+                    if (cloudData.items) state.items = cloudData.items;
+                    if (cloudData.frequent) state.frequent = cloudData.frequent;
+                    if (cloudData.history) state.history = cloudData.history;
+                    if (cloudData.categories) {
+                        categories = cloudData.categories;
+                        renderCategorySelects();
+                        renderDashboardGrid();
+                        renderFilters();
+                    }
+                    saveLocalState();
+                    render();
+                } else {
+                    // Se il documento non esiste sul cloud, lo inizializziamo con i dati locali
+                    saveCloudState();
+                }
+            }, (error) => {
+                console.error("Errore di sincronizzazione Firebase:", error);
+            });
+        };
+
+        window.saveCloudState = async function() {
+            const listIdInput = document.getElementById('shared-list-id');
+            const listId = listIdInput ? listIdInput.value.trim() : "famiglia-nussbaumer-01";
+            const docRef = doc(db, "shopping_lists", listId);
+            try {
+                await setDoc(docRef, {
+                    items: state.items,
+                    frequent: state.frequent,
+                    history: state.history,
+                    categories: categories,
+                    updatedAt: new Date().toISOString()
+                });
+            } catch (e) {
+                console.error("Errore nel salvataggio su Cloud:", e);
+            }
+        };
+
+        // Avvia la sync al caricamento
+        setTimeout(() => {
+            if (window.initFirebaseSync) window.initFirebaseSync();
+        }, 500);
+    </script>
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --card-hover: #f8fafc;
+            --text-color: #0f172a;
+            --text-secondary: #64748b;
+            --accent-color: #0284c7;
+            --accent-hover: #0369a1;
+            --success-color: #059669;
+            --danger-color: #dc2626;
+            --border-color: #e2e8f0;
+            --grid-bg: #ccfbf1;
+            --grid-border: #99f6e4;
+            --radius: 16px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        html[data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --card-hover: #334155;
+            --text-color: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-color: #0ea5e9;
+            --accent-hover: #0284c7;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --border-color: #334155;
+            --grid-bg: #134e4a;
+            --grid-border: #0f766e;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 16px;
+            max-width: 650px;
+            margin: 0 auto;
+            padding-bottom: 90px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        /* Navigazione Tab Inferiore */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 100;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .nav-item.active {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .nav-item span.icon {
+            font-size: 1.3rem;
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Griglia Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-tile {
+            background: var(--grid-bg);
+            border: 1px solid var(--grid-border);
+            border-radius: 14px;
+            padding: 16px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+            min-height: 105px;
+        }
+
+        .dashboard-tile:active {
+            transform: scale(0.96);
+        }
+
+        .dashboard-tile .tile-icon {
+            font-size: 2rem;
+            margin-bottom: 6px;
+        }
+
+        .dashboard-tile .tile-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-color);
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .row > * {
+            flex: 1;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+
+        .filters-container {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+            scrollbar-width: none;
+        }
+
+        .filters-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-chip {
+            white-space: nowrap;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .filter-chip.active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .item-list {
+            list-style: none;
+        }
+
+        .item-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+
+        .item-card.completed {
+            opacity: 0.5;
+        }
+
+        .item-card.completed .item-title {
+            text-decoration: line-through;
+        }
+
+        .item-checkbox {
+            width: 22px;
+            height: 22px;
+            margin-top: 2px;
+            accent-color: var(--success-color);
+            cursor: pointer;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .item-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .badge {
+            background: var(--bg-color);
+            padding: 2px 6px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-size: 0.75rem;
+        }
+
+        .badge-lactose {
+            background-color: rgba(14, 165, 233, 0.15);
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0 4px;
+        }
+
+        .frequent-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .frequent-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: var(--bg-color);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 24px;
+            font-size: 0.95rem;
+        }
+
+        /* Modal personalizzato per conferme e modifiche */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 400px;
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🛒 Spesa Smart</h1>
+        <button class="btn-secondary" onclick="toggleTheme()" id="theme-btn" style="padding: 6px 12px; font-size: 0.85rem;">🌙 Tema</button>
+    </header>
+
+    <!-- TAB 1: DASHBOARD -->
+    <div id="view-dashboard" class="view active">
+        <div class="card" style="background: transparent; border: none; padding: 0; box-shadow: none;">
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 14px;">Seleziona un reparto per esplorare o aggiungere prodotti rapidi:</p>
+            <div class="dashboard-grid" id="category-grid"></div>
+        </div>
+
+        <div class="card">
+            <h2>➕ Aggiungi Prodotto Libero</h2>
+            <form onsubmit="addItemDirect(event)">
+                <div class="form-group">
+                    <input type="text" id="quick-name" placeholder="Nome prodotto (es. Mozzarella Zymil)" required autocomplete="off">
+                </div>
+                <div class="row form-group">
+                    <input type="text" id="quick-qty" placeholder="Quantità (es. 2 conf)">
+                    <input type="number" id="quick-price" step="0.01" min="0" placeholder="Prezzo stimato €">
+                </div>
+                <div class="form-group">
+                    <select id="quick-category"></select>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="quick-notes" placeholder="Note (es. marca specifica, offerta)">
+                </div>
+                <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="quick-recurring" checked style="width: 20px; height: 20px; accent-color: var(--accent-color); cursor: pointer;">
+                    <label for="quick-recurring" style="font-size: 0.9rem; cursor: pointer;">Salva nelle spese ripetitive / frequenti</label>
+                </div>
+                <button type="submit" style="width: 100%;">Aggiungi alla Lista</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- TAB 2: LISTA ATTIVA -->
+    <div id="view-attiva" class="view">
+        <div class="filters-container" id="filters-container"></div>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h2 style="margin-bottom: 0;">📋 Lista Attiva</h2>
+                <div id="total-budget-badge" style="background: var(--accent-color); color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">
+                    Tot: €0.00
+                </div>
+            </div>
+            <ul class="item-list" id="active-list"></ul>
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                <button class="btn-secondary" onclick="clearCompleted()" style="flex: 1;">🗑️ Elimina spuntati</button>
+                <button class="btn-danger" onclick="clearAll()" style="flex: 1;">⚠️ Svuota</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: ACQUISTI (SPESE RIPETITIVE & ANAGRAFICA) -->
+    <div id="view-acquisti" class="view">
+        <div class="card">
+            <h2>🔄 Spese Ripetitive & Anagrafica</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 14px;">Gestisci i prodotti frequenti, filtra per categoria o ordina l'anagrafica:</p>
+            
+            <div class="row form-group" style="margin-bottom: 12px;">
+                <select id="freq-filter-category" onchange="render()" style="font-size: 0.9rem; padding: 8px;">
+                    <option value="Tutti">Tutte le categorie</option>
+                </select>
+                <select id="freq-sort-by" onchange="render()" style="font-size: 0.9rem; padding: 8px;">
+                    <option value="count">Ordina per: Frequenza</option>
+                    <option value="name">Ordina per: Nome (A-Z)</option>
+                    <option value="price">Ordina per: Prezzo</option>
+                </select>
+            </div>
+
+            <div class="frequent-grid" id="frequent-list"></div>
+        </div>
+    </div>
+
+    <!-- TAB 4: PROFILO & REPARTI -->
+    <div id="view-profile" class="view">
+        <div class="card">
+            <h2>🏷️ Gestione Reparti</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 14px;">Aggiungi nuovi reparti o modifica/rimuovi quelli esistenti.</p>
+            
+            <form onsubmit="addDepartment(event)" style="margin-bottom: 16px;">
+                <div class="row form-group">
+                    <input type="text" id="new-dept-icon" placeholder="Emoji (es. 🍎)" style="max-width: 80px;" required>
+                    <input type="text" id="new-dept-name" placeholder="Nome Reparto" required>
+                </div>
+                <button type="submit" style="width: 100%;">➕ Aggiungi Reparto</button>
+            </form>
+
+            <div id="department-manage-list"></div>
+        </div>
+
+        <div class="card">
+            <h2>📜 Storico Spese Passate</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 14px;">Riepilogo delle spese passate salvate al momento dello svuotamento.</p>
+            <div id="history-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+        </div>
+
+        <div class="card">
+            <h2>☁️ Sincronizzazione e Condivisione</h2>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 16px;">
+                Condividi questo ID con i tuoi dispositivi o familiari per sincronizzare la lista in tempo reale.
+            </p>
+            <div class="form-group" style="display: flex; gap: 8px;">
+                <input type="text" id="shared-list-id" value="famiglia-nussbaumer-01">
+                <button type="button" onclick="changeSharedList()" style="padding: 0 16px; font-size: 0.85rem;">Salva / Connetti</button>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('dashboard', this)">
+            <span class="icon">🏠</span>
+            <span>Dashboard</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('attiva', this)">
+            <span class="icon">📋</span>
+            <span>Lista Attiva</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('acquisti', this)">
+            <span class="icon">🔄</span>
+            <span>Ripetitive</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('profile', this)">
+            <span class="icon">⚙️</span>
+            <span>Altro</span>
+        </button>
+    </nav>
+
+    <!-- CUSTOM CONFIRM & EDIT MODAL -->
+    <div class="modal" id="confirm-modal">
+        <div class="modal-content">
+            <h3 id="modal-title" style="margin-bottom: 8px;">Conferma</h3>
+            <p id="modal-text" style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 20px;"></p>
+            <div style="display: flex; gap: 10px;" id="modal-buttons-container">
+                <button class="btn-secondary" onclick="closeModal()" style="flex: 1;">Annulla</button>
+                <button class="btn-danger" id="modal-confirm-btn" style="flex: 1;">Conferma</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let categories = JSON.parse(localStorage.getItem('smart_shopping_categories')) || [
+            { name: 'Frutta e Verdura', icon: '🌱' },
+            { name: 'Latticini e formaggi', icon: '🧀' },
+            { name: 'Salumi', icon: '🍖' },
+            { name: 'Zucchero e latte', icon: '🥛' },
+            { name: 'Carne', icon: '🥩' },
+            { name: 'Colazione e Bibite', icon: '☕' },
+            { name: 'Surgelati', icon: '❄️' },
+            { name: 'Casa', icon: '🏠' },
+            { name: 'Senza Lattosio', icon: '🥛🚫' }
+        ];
+
+        let defaultFrequentItems = [
+            { id: 1, name: 'Latte Senza Lattosio', qty: '1 l', price: 1.49, category: 'Senza Lattosio', notes: 'Zymil', count: 12 },
+            { id: 2, name: 'Yogurt Greco', qty: '2 pz', price: 2.20, category: 'Latticini e formaggi', notes: 'Senza lattosio', count: 9 },
+            { id: 3, name: 'Pane in cassetta', qty: '1 conf', price: 1.80, category: 'Colazione e Bibite', notes: '', count: 7 },
+            { id: 4, name: 'Acqua naturale', qty: '6 bottiglie', price: 2.50, category: 'Colazione e Bibite', notes: '', count: 6 },
+            { id: 5, name: 'Carta Igienica', qty: '1 pacco', price: 3.99, category: 'Casa', notes: '', count: 5 }
+        ];
+
+        let state = {
+            items: JSON.parse(localStorage.getItem('smart_shopping_items')) || [],
+            frequent: JSON.parse(localStorage.getItem('smart_shopping_frequent')) || defaultFrequentItems,
+            history: JSON.parse(localStorage.getItem('smart_shopping_history')) || [],
+            currentFilter: 'Tutti'
+        };
+
+        state.frequent.forEach((f, index) => {
+            if (!f.id) f.id = Date.now() + index;
+        });
+
+        let confirmCallback = null;
+
+        function saveLocalState() {
+            localStorage.setItem('smart_shopping_items', JSON.stringify(state.items));
+            localStorage.setItem('smart_shopping_frequent', JSON.stringify(state.frequent));
+            localStorage.setItem('smart_shopping_history', JSON.stringify(state.history));
+            localStorage.setItem('smart_shopping_categories', JSON.stringify(categories));
+        }
+
+        // Salva in locale e sincronizza su Cloud
+        function saveState() {
+            saveLocalState();
+            if (window.saveCloudState) {
+                window.saveCloudState();
+            }
+        }
+
+        function changeSharedList() {
+            const newId = document.getElementById('shared-list-id').value.trim();
+            if (newId) {
+                localStorage.setItem('smart_shopping_list_id', newId);
+                if (window.initFirebaseSync) {
+                    window.initFirebaseSync();
+                }
+                alert("Connesso alla lista: " + newId);
+            }
+        }
+
+        // Carica ID lista salvato se presente
+        const savedListId = localStorage.getItem('smart_shopping_list_id');
+        if (savedListId) {
+            const listInput = document.getElementById('shared-list-id');
+            if (listInput) listInput.value = savedListId;
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('smart_shopping_theme', newTheme);
+            updateThemeButtonText(newTheme);
+        }
+
+        function updateThemeButtonText(theme) {
+            const btn = document.getElementById('theme-btn');
+            if (btn) {
+                btn.textContent = theme === 'light' ? '🌙 Tema Scuro' : '☀️ Tema Chiaro';
+            }
+        }
+
+        const savedTheme = localStorage.getItem('smart_shopping_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeButtonText(savedTheme);
+
+        function showConfirmModal(title, text, onConfirm) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-text').textContent = text;
+            confirmCallback = onConfirm;
+            document.getElementById('confirm-modal').classList.add('open');
+        }
+
+        function closeModal() {
+            document.getElementById('confirm-modal').classList.remove('open');
+            confirmCallback = null;
+        }
+
+        document.getElementById('modal-confirm-btn').onclick = function() {
+            if (confirmCallback) confirmCallback();
+            closeModal();
+        };
+
+        function editFrequent(id) {
+            const freq = state.frequent.find(f => f.id === id);
+            if (!freq) return;
+
+            const newName = prompt("Modifica Nome Prodotto:", freq.name);
+            if (newName === null) return;
+            
+            const newQty = prompt("Modifica Quantità:", freq.qty || "");
+            if (newQty === null) return;
+            
+            const newPriceStr = prompt("Modifica Prezzo (€):", freq.price !== undefined ? freq.price : "");
+            if (newPriceStr === null) return;
+            
+            const newNotes = prompt("Modifica Note:", freq.notes || "");
+            if (newNotes === null) return;
+
+            if (newName.trim()) {
+                freq.name = newName.trim();
+                freq.qty = newQty.trim();
+                freq.price = newPriceStr !== "" ? parseFloat(newPriceStr) || 0 : 0;
+                freq.notes = newNotes.trim();
+                
+                saveState();
+                render();
+            }
+        }
+
+        function renderDashboardGrid() {
+            const grid = document.getElementById('category-grid');
+            if (!grid) return;
+            grid.innerHTML = categories.map(cat => `
+                <div class="dashboard-tile" onclick="filterAndGoToAcquisti('${cat.name}')">
+                    <div class="tile-icon">${cat.icon}</div>
+                    <div class="tile-name">${cat.name}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderCategorySelects() {
+            const select = document.getElementById('quick-category');
+            const freqSelect = document.getElementById('freq-filter-category');
+            if (select) {
+                select.innerHTML = categories.map(cat => `
+                    <option value="${cat.name}">${cat.icon} ${cat.name}</option>
+                `).join('');
+            }
+            if (freqSelect) {
+                let freqHtml = '<option value="Tutti">Tutte le categorie</option>';
+                freqHtml += categories.map(cat => `<option value="${cat.name}">${cat.icon} ${cat.name}</option>`).join('');
+                freqSelect.innerHTML = freqHtml;
+            }
+        }
+
+        function filterAndGoToAcquisti(catName) {
+            state.currentFilter = catName;
+            renderFilters();
+            switchTab('attiva', document.querySelectorAll('.nav-item')[1]);
+            render();
+        }
+
+        function switchTab(tabName, btnElement) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+            const targetView = document.getElementById('view-' + tabName);
+            if (targetView) targetView.classList.add('active');
+            if (btnElement) btnElement.classList.add('active');
+            render();
+        }
+
+        function render() {
+            const activeList = document.getElementById('active-list');
+            const frequentList = document.getElementById('frequent-list');
+            const historyList = document.getElementById('history-list');
+            const budgetBadge = document.getElementById('total-budget-badge');
+            if (!activeList || !frequentList) return;
+
+            const filtered = state.currentFilter === 'Tutti' 
+                ? state.items 
+                : state.items.filter(i => i.category === state.currentFilter);
+
+            filtered.sort((a, b) => a.completed - b.completed);
+
+            let activeTotal = state.items.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+            if (budgetBadge) {
+                budgetBadge.textContent = `Tot: €${activeTotal.toFixed(2)}`;
+            }
+
+            if (filtered.length === 0) {
+                activeList.innerHTML = '<div class="empty-state">Nessun articolo in questa sezione.</div>';
+            } else {
+                activeList.innerHTML = filtered.map(item => `
+                    <li class="item-card ${item.completed ? 'completed' : ''}">
+                        <input type="checkbox" class="item-checkbox" ${item.completed ? 'checked' : ''} onclick="toggleItem(${item.id})">
+                        <div class="item-details">
+                            <div class="item-title">${escapeHtml(item.name)}</div>
+                            <div class="item-meta">
+                                <span class="badge ${item.category === 'Senza Lattosio' ? 'badge-lactose' : ''}">${escapeHtml(item.category)}</span>
+                                ${item.qty ? `<span>📦 ${escapeHtml(item.qty)}</span>` : ''}
+                                ${item.price ? `<span style="color: var(--success-color); font-weight: 600;">💶 €${parseFloat(item.price).toFixed(2)}</span>` : ''}
+                                ${item.notes ? `<span>📝 ${escapeHtml(item.notes)}</span>` : ''}
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="deleteItem(${item.id})">&times;</button>
+                    </li>
+                `).join('');
+            }
+
+            const freqCatFilter = document.getElementById('freq-filter-category')?.value || 'Tutti';
+            const freqSortBy = document.getElementById('freq-sort-by')?.value || 'count';
+
+            let sortedFreq = [...state.frequent];
+            if (freqCatFilter !== 'Tutti') {
+                sortedFreq = sortedFreq.filter(f => f.category === freqCatFilter);
+            }
+
+            if (freqSortBy === 'count') {
+                sortedFreq.sort((a, b) => b.count - a.count);
+            } else if (freqSortBy === 'name') {
+                sortedFreq.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (freqSortBy === 'price') {
+                sortedFreq.sort((a, b) => (a.price || 0) - (b.price || 0));
+            }
+
+            if (sortedFreq.length === 0) {
+                frequentList.innerHTML = '<div class="empty-state">Nessuna spesa frequente trovata.</div>';
+            } else {
+                frequentList.innerHTML = sortedFreq.map((freq) => `
+                    <div class="frequent-item">
+                        <div>
+                            <strong>${escapeHtml(freq.name)}</strong>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">${escapeHtml(freq.category)} ${freq.qty ? '• ' + escapeHtml(freq.qty) : ''} ${freq.price ? '• €' + parseFloat(freq.price).toFixed(2) : ''}</div>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <button type="button" onclick="addFrequent(${freq.id})" style="padding: 6px 10px; font-size: 0.8rem;">➕ Aggiungi</button>
+                            <button type="button" class="btn-secondary" onclick="editFrequent(${freq.id})" style="padding: 6px 10px; font-size: 0.8rem;" title="Modifica anagrafica">✏️</button>
+                            <button type="button" class="btn-danger" onclick="deleteFrequent(${freq.id})" style="padding: 6px 10px; font-size: 0.8rem;" title="Elimina da anagrafica">&times;</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            if (historyList) {
+                if (state.history.length === 0) {
+                    historyList.innerHTML = '<div class="empty-state" style="padding: 12px;">Nessuno storico registrato.</div>';
+                } else {
+                    historyList.innerHTML = state.history.map((hist) => `
+                        <div style="background: var(--bg-color); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="font-size: 0.9rem;">📅 ${hist.date}</strong>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary);">${hist.itemsCount} articoli acquistati</div>
+                            </div>
+                            <div style="font-weight: 600; color: var(--success-color);">€${hist.total.toFixed(2)}</div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            renderDepartmentManagement();
+        }
+
+        function addItemDirect(e) {
+            e.preventDefault();
+            const name = document.getElementById('quick-name').value.trim();
+            const qty = document.getElementById('quick-qty').value.trim();
+            const priceVal = document.getElementById('quick-price').value;
+            const price = priceVal ? parseFloat(priceVal) : 0;
+            const category = document.getElementById('quick-category').value;
+            const notes = document.getElementById('quick-notes').value.trim();
+            const isRecurring = document.getElementById('quick-recurring').checked;
+
+            if (!name) return;
+
+            const newItem = { id: Date.now(), name, qty, price, category, notes, completed: false };
+            state.items.push(newItem);
+
+            if (isRecurring) {
+                const existing = state.frequent.find(f => f.name.toLowerCase() === name.toLowerCase());
+                if (existing) {
+                    existing.count++;
+                    existing.qty = qty || existing.qty;
+                    existing.price = price || existing.price;
+                    existing.category = category;
+                    existing.notes = notes || existing.notes;
+                } else {
+                    state.frequent.push({ id: Date.now() + 1, name, qty, price, category, notes, count: 1 });
+                }
+            }
+
+            saveState();
+            document.getElementById('quick-name').value = '';
+            document.getElementById('quick-qty').value = '';
+            document.getElementById('quick-price').value = '';
+            document.getElementById('quick-notes').value = '';
+            document.getElementById('quick-recurring').checked = true;
+            
+            switchTab('attiva', document.querySelectorAll('.nav-item')[1]);
+        }
+
+        function toggleItem(id) {
+            const item = state.items.find(i => i.id === id);
+            if (item) {
+                item.completed = !item.completed;
+                saveState();
+                render();
+            }
+        }
+
+        function deleteItem(id) {
+            state.items = state.items.filter(i => i.id !== id);
+            saveState();
+            render();
+        }
+
+        function deleteFrequent(id) {
+            state.frequent = state.frequent.filter(f => f.id !== id);
+            saveState();
+            render();
+        }
+
+        function clearCompleted() {
+            state.items = state.items.filter(i => !i.completed);
+            saveState();
+            render();
+        }
+
+        function clearAll() {
+            showConfirmModal("Svuota Lista", "Vuoi svuotare tutta la lista attiva? (I dati verranno salvati nello storico spese)", () => {
+                if (state.items.length > 0) {
+                    let totalSpent = state.items.reduce((acc, i) => acc + (parseFloat(i.price) || 0), 0);
+                    let nowStr = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    state.history.unshift({
+                        date: nowStr,
+                        itemsCount: state.items.length,
+                        total: totalSpent
+                    });
+                    if (state.history.length > 10) state.history.pop();
+                }
+                state.items = [];
+                saveState();
+                render();
+            });
+        }
+
+        function setFilter(cat, el) {
+            state.currentFilter = cat;
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            if (el) el.classList.add('active');
+            render();
+        }
+
+        function renderFilters() {
+            const container = document.getElementById('filters-container');
+            if (!container) return;
+            
+            let html = `<div class="filter-chip ${state.currentFilter === 'Tutti' ? 'active' : ''}" onclick="setFilter('Tutti', this)">Tutti</div>`;
+            categories.forEach(cat => {
+                const isActive = state.currentFilter === cat.name ? 'active' : '';
+                html += `<div class="filter-chip ${isActive}" onclick="setFilter('${cat.name}', this)">${cat.icon} ${cat.name}</div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderDepartmentManagement() {
+            const list = document.getElementById('department-manage-list');
+            if (!list) return;
+
+            if (categories.length === 0) {
+                list.innerHTML = '<div class="empty-state">Nessun reparto disponibile.</div>';
+                return;
+            }
+
+            list.innerHTML = categories.map((cat, idx) => `
+                <div style="background: var(--bg-color); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 1.2rem;">${cat.icon}</span>
+                        <strong>${escapeHtml(cat.name)}</strong>
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        <button class="btn-secondary" onclick="editDepartment(${idx})" style="padding: 4px 8px; font-size: 0.8rem;">✏️ Modifica</button>
+                        <button class="btn-danger" onclick="deleteDepartment(${idx})" style="padding: 4px 8px; font-size: 0.8rem;">&times;</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addDepartment(e) {
+            e.preventDefault();
+            const icon = document.getElementById('new-dept-icon').value.trim();
+            const name = document.getElementById('new-dept-name').value.trim();
+            if (!icon || !name) return;
+
+            categories.push({ name, icon });
+            saveState();
+            renderDashboardGrid();
+            renderCategorySelects();
+            renderFilters();
+            renderDepartmentManagement();
+        }
+
+        function editDepartment(index) {
+            const cat = categories[index];
+            const newName = prompt("Modifica nome reparto:", cat.name);
+            if (newName === null) return;
+            const newIcon = prompt("Modifica emoji reparto:", cat.icon);
+            if (newIcon === null) return;
+
+            if (newName.trim()) {
+                categories[index].name = newName.trim();
+                if (newIcon.trim()) categories[index].icon = newIcon.trim();
+                saveState();
+                renderDashboardGrid();
+                renderCategorySelects();
+                renderFilters();
+                renderDepartmentManagement();
+                render();
+            }
+        }
+
+        function deleteDepartment(index) {
+            if (categories.length <= 1) {
+                alert("Non puoi eliminare tutti i reparti.");
+                return;
+            }
+            showConfirmModal("Elimina Reparto", `Vuoi eliminare il reparto "${categories[index].name}"?`, () => {
+                categories.splice(index, 1);
+                saveState();
+                renderDashboardGrid();
+                renderCategorySelects();
+                renderFilters();
+                renderDepartmentManagement();
+                render();
+            });
+        }
+
+        function addFrequent(id) {
+            const freq = state.frequent.find(f => f.id === id);
+            if (!freq) return;
+
+            freq.count++;
+
+            state.items.push({
+                id: Date.now(),
+                name: freq.name,
+                qty: freq.qty || '',
+                price: freq.price || 0,
+                category: freq.category || categories[0]?.name || 'Colazione e Bibite',
+                notes: freq.notes || '',
+                completed: false
+            });
+            saveState();
+            render();
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        renderDashboardGrid();
+        renderCategorySelects();
+        renderFilters();
+        render();
+    </script>
+</body>
+</html>
