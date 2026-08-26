@@ -50,7 +50,6 @@
                     saveLocalState();
                     render();
                 } else {
-                    // Se il documento cloud è vuoto (es. nuovo ID), forza il salvataggio dei default attuali
                     saveCloudState();
                 }
             }, (error) => {
@@ -167,6 +166,7 @@
             gap: 4px;
             cursor: pointer;
             flex: 1;
+            position: relative;
         }
 
         .nav-item.active {
@@ -174,8 +174,26 @@
             font-weight: 600;
         }
 
+        .nav-item span.icon-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
         .nav-item span.icon {
             font-size: 1.3rem;
+        }
+
+        .nav-badge {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background-color: var(--danger-color);
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 10px;
+            display: none;
         }
 
         .view {
@@ -377,6 +395,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
+            align-items: center;
         }
 
         .badge {
@@ -474,7 +493,7 @@
                 </div>
                 <div class="row form-group">
                     <input type="text" id="quick-qty" placeholder="Quantità (es. 2 conf)">
-                    <input type="number" id="quick-price" step="0.01" min="0" placeholder="Prezzo stimato €">
+                    <input type="number" id="quick-price" step="0.01" min="0" placeholder="Prezzo unitario/totale €">
                 </div>
                 <div class="form-group">
                     <select id="quick-category"></select>
@@ -568,19 +587,28 @@
 
     <nav class="bottom-nav">
         <button class="nav-item active" onclick="switchTab('dashboard', this)">
-            <span class="icon">🏠</span>
+            <span class="icon-wrapper">
+                <span class="icon">🏠</span>
+            </span>
             <span>Dashboard</span>
         </button>
         <button class="nav-item" onclick="switchTab('attiva', this)">
-            <span class="icon">📋</span>
+            <span class="icon-wrapper">
+                <span class="icon">📋</span>
+                <span class="nav-badge" id="nav-active-badge">0</span>
+            </span>
             <span>Lista Attiva</span>
         </button>
         <button class="nav-item" onclick="switchTab('acquisti', this)">
-            <span class="icon">🔄</span>
+            <span class="icon-wrapper">
+                <span class="icon">🔄</span>
+            </span>
             <span>Ripetitive</span>
         </button>
         <button class="nav-item" onclick="switchTab('profile', this)">
-            <span class="icon">⚙️</span>
+            <span class="icon-wrapper">
+                <span class="icon">⚙️</span>
+            </span>
             <span>Altro</span>
         </button>
     </nav>
@@ -615,114 +643,7 @@
             { id: 2, name: 'Yogurt Greco', qty: '2 pz', price: 2.20, category: 'Latticini e formaggi', notes: 'Senza lattosio', count: 9 },
             { id: 3, name: 'Pane in cassetta', qty: '1 conf', price: 1.80, category: 'Colazione e Bibite', notes: '', count: 7 },
             { id: 4, name: 'Acqua naturale', qty: '6 bottiglie', price: 2.50, category: 'Colazione e Bibite', notes: '', count: 6 },
-            { id: 5, name: 'Carta Igienica', qty: '1 pacco', price: 3.99, category: 'Casa', notes: '', count: 5 },
-            { id: 101, name: 'Passata Petti', qty: '1 pz', price: 1.89, category: 'Casa', notes: '', count: 1 },
-            { id: 102, name: 'Prosecco Col Solivo', qty: '1 pz', price: 4.60, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 103, name: 'Birra Note Melograno', qty: '1 pz', price: 1.39, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 104, name: 'Cetrioli Carosello', qty: '1 pz', price: 1.69, category: 'Frutta e Verdura', notes: '', count: 1 },
-            { id: 105, name: 'Cipolla Rossa Trec.', qty: '1 pz', price: 1.89, category: 'Frutta e Verdura', notes: '', count: 2 },
-            { id: 106, name: 'Frollini Cioccodi', qty: '1 pz', price: 2.90, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 107, name: 'Avocados', qty: '1 pz', price: 1.29, category: 'Frutta e Verdura', notes: '', count: 2 },
-            { id: 108, name: 'Banane', qty: '1 pz', price: 0.76, category: 'Frutta e Verdura', notes: '', count: 2 },
-            { id: 109, name: 'Patate Pasta Gialla', qty: '1 pz', price: 1.66, category: 'Frutta e Verdura', notes: '', count: 2 },
-            { id: 110, name: 'Fragole Gusto Contadino', qty: '1 pz', price: 4.90, category: 'Frutta e Verdura', notes: '', count: 1 },
-            { id: 111, name: 'Pomodoro Datterino', qty: '1 pz', price: 1.99, category: 'Frutta e Verdura', notes: '', count: 3 },
-            { id: 112, name: 'Chiocciole Olz', qty: '1 pz', price: 2.55, category: 'Surgelati', notes: '', count: 1 },
-            { id: 113, name: 'Pinze in Acciaio', qty: '1 pz', price: 7.90, category: 'Casa', notes: '', count: 1 },
-            { id: 114, name: 'Ravioli Ricotta/Spinaci', qty: '1 pz', price: 3.29, category: 'Latticini e formaggi', notes: '', count: 1 },
-            { id: 115, name: 'Lasagne Sfogliavelo', qty: '1 pz', price: 2.49, category: 'Surgelati', notes: '', count: 1 },
-            { id: 116, name: 'Milk Kefir Plus Bian.', qty: '1 pz', price: 2.59, category: 'Latticini e formaggi', notes: '', count: 1 },
-            { id: 117, name: 'G+G Cocco Mila', qty: '1 pz', price: 0.99, category: 'Latticini e formaggi', notes: '', count: 3 },
-            { id: 118, name: 'G+G Vaniglia/Bianco Mila', qty: '1 pz', price: 0.99, category: 'Latticini e formaggi', notes: '', count: 2 },
-            { id: 119, name: 'G+G Mandarino Mila', qty: '1 pz', price: 0.99, category: 'Latticini e formaggi', notes: '', count: 1 },
-            { id: 120, name: 'G+G Pesca/Nocciola Mila', qty: '1 pz', price: 0.99, category: 'Latticini e formaggi', notes: '', count: 2 },
-            { id: 121, name: 'S/L Yogurt Pesca/Mandorla', qty: '1 pz', price: 0.99, category: 'Senza Lattosio', notes: '', count: 1 },
-            { id: 122, name: 'Yogurt Mila Gusto+Gusto', qty: '1 pz', price: 0.99, category: 'Latticini e formaggi', notes: '', count: 1 },
-            { id: 123, name: 'Sfoglia Primia', qty: '1 pz', price: 1.29, category: 'Colazione e Bibite', notes: '', count: 2 },
-            { id: 124, name: 'S/L Primia Mozzarella', qty: '1 pz', price: 3.29, category: 'Senza Lattosio', notes: '', count: 3 },
-            { id: 125, name: 'Mozzarella Senza Lattosio', qty: '1 pz', price: 1.15, category: 'Senza Lattosio', notes: '', count: 2 },
-            { id: 126, name: 'S/G Tacchino Aia Aeq', qty: '1 pz', price: 2.69, category: 'Carne', notes: '', count: 1 },
-            { id: 127, name: 'S/G Petto Pollo Aia', qty: '1 pz', price: 2.69, category: 'Carne', notes: '', count: 1 },
-            { id: 128, name: 'Latte UHT Primia', qty: '1 pz', price: 1.19, category: 'Zucchero e latte', notes: '', count: 1 },
-            { id: 129, name: 'Fette Biscottate M/Bianco', qty: '1 pz', price: 1.45, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 130, name: 'Confettura Frutti Bosco', qty: '1 pz', price: 1.99, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 131, name: 'Choco Shells T1', qty: '1 pz', price: 4.85, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 132, name: 'Frollini Nocciola', qty: '1 pz', price: 2.29, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 133, name: 'Caramelle Zirele', qty: '1 pz', price: 2.40, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 134, name: 'S/G Caramelle Sperlari', qty: '1 pz', price: 1.15, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 135, name: 'Fiore Taralli Pomodoro', qty: '1 pz', price: 1.19, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 136, name: 'Sale Grosso Sai', qty: '1 pz', price: 0.25, category: 'Casa', notes: '', count: 1 },
-            { id: 137, name: 'Primia Piadine R.', qty: '1 pz', price: 0.99, category: 'Colazione e Bibite', notes: '', count: 3 },
-            { id: 138, name: 'American Sandwich Primia', qty: '1 pz', price: 1.09, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 139, name: 'Glassa Balsamica Ponti', qty: '1 pz', price: 2.59, category: 'Casa', notes: '', count: 1 },
-            { id: 140, name: 'Fette di Bovino', qty: '1 pz', price: 4.66, category: 'Carne', notes: '', count: 1 },
-            { id: 141, name: 'Citres Pomodori Secchi', qty: '1 pz', price: 2.15, category: 'Casa', notes: '', count: 1 },
-            { id: 142, name: 'Coca Cola Zero', qty: '1 pz', price: 5.99, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 143, name: 'Red Bull', qty: '1 pz', price: 1.85, category: 'Colazione e Bibite', notes: '', count: 2 },
-            { id: 144, name: 'Nettare Pera Yoga', qty: '1 pz', price: 1.29, category: 'Colazione e Bibite', notes: '', count: 2 },
-            { id: 145, name: 'Nettare Yoga', qty: '1 pz', price: 1.29, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 146, name: 'Birra Dreher', qty: '1 pz', price: 0.99, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 147, name: 'Filetti Primia', qty: '1 pz', price: 4.99, category: 'Surgelati', notes: '', count: 1 },
-            { id: 148, name: 'Finish Deo Lavas.', qty: '1 pz', price: 3.19, category: 'Casa', notes: '', count: 1 },
-            { id: 149, name: 'Finish Cura Lav.', qty: '1 pz', price: 4.29, category: 'Casa', notes: '', count: 1 },
-            { id: 150, name: 'Primia Brillant.', qty: '1 pz', price: 1.59, category: 'Casa', notes: '', count: 1 },
-            { id: 151, name: 'Zucchine', qty: '1 pz', price: 1.75, category: 'Frutta e Verdura', notes: '', count: 2 },
-            { id: 152, name: 'Melanzane', qty: '1 pz', price: 0.50, category: 'Frutta e Verdura', notes: '', count: 1 },
-            { id: 153, name: 'Funghi Finferli 300g', qty: '300g', price: 6.90, category: 'Frutta e Verdura', notes: '', count: 1 },
-            { id: 154, name: 'Barbabietole Rosse', qty: '1 pz', price: 0.99, category: 'Frutta e Verdura', notes: '', count: 1 },
-            { id: 155, name: 'Ananas Gold', qty: '1 pz', price: 4.14, category: 'Frutta e Verdura', notes: '', count: 1 },
-            { id: 156, name: 'Uova Media Primia', qty: '1 pz', price: 3.19, category: 'Zucchero e latte', notes: '', count: 1 },
-            { id: 157, name: 'Philadelphia S/Lattosio', qty: '1 pz', price: 2.29, category: 'Senza Lattosio', notes: '', count: 2 },
-            { id: 158, name: 'Salsiccia Piccante', qty: '1 pz', price: 8.60, category: 'Carne', notes: '', count: 1 },
-            { id: 159, name: 'S/G Tacchino For.', qty: '1 pz', price: 2.90, category: 'Carne', notes: '', count: 1 },
-            { id: 160, name: 'Certosa Galbani', qty: '1 pz', price: 2.49, category: 'Latticini e formaggi', notes: '', count: 2 },
-            { id: 161, name: 'Farro Soffiato Colfi', qty: '1 pz', price: 2.59, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 162, name: 'Fiocchi Riso Frum.', qty: '1 pz', price: 2.15, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 163, name: 'Frollini Mandorla', qty: '1 pz', price: 2.29, category: 'Colazione e Bibite', notes: '', count: 2 },
-            { id: 164, name: 'Primia Maxi Hamb.', qty: '1 pz', price: 0.99, category: 'Carne', notes: '', count: 1 },
-            { id: 165, name: 'Salsiccia Grill', qty: '1 pz', price: 3.49, category: 'Carne', notes: '', count: 1 },
-            { id: 166, name: 'Macinato Bov/Sui', qty: '1 pz', price: 7.65, category: 'Carne', notes: '', count: 1 },
-            { id: 167, name: 'Campari Bitter', qty: '1 pz', price: 16.50, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 168, name: 'S/G Succo S.Benedetto', qty: '1 pz', price: 1.39, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 169, name: 'Birra Non Filt. Ichnusa', qty: '1 pz', price: 1.25, category: 'Colazione e Bibite', notes: '', count: 2 },
-            { id: 170, name: 'Sedano Verde', qty: '1 pz', price: 0.94, category: 'Frutta e Verdura', notes: '', count: 1 },
-            { id: 171, name: 'Carote', qty: '1 pz', price: 0.72, category: 'Frutta e Verdura', notes: '', count: 1 },
-            { id: 172, name: 'Birra Beck\'s', qty: '1 pz', price: 1.39, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 173, name: 'Basilico Vaso Gusto', qty: '1 pz', price: 1.59, category: 'Frutta e Verdura', notes: '', count: 1 },
-            { id: 174, name: 'Pinsa Ambient Piccin.', qty: '1 pz', price: 2.69, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 175, name: 'Pistacchio Tostato S.', qty: '1 pz', price: 7.99, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 176, name: 'Gamberetti Primia', qty: '1 pz', price: 4.19, category: 'Surgelati', notes: '', count: 1 },
-            { id: 177, name: 'S/G Yog. Bere Primia', qty: '1 pz', price: 0.69, category: 'Senza Lattosio', notes: '', count: 1 },
-            { id: 178, name: 'Tyrolini Handl', qty: '1 pz', price: 1.49, category: 'Salumi', notes: '', count: 1 },
-            { id: 179, name: 'S/G Salami Drops', qty: '1 pz', price: 1.99, category: 'Salumi', notes: '', count: 1 },
-            { id: 180, name: 'Kefir Milk', qty: '1 pz', price: 0.99, category: 'Latticini e formaggi', notes: '', count: 1 },
-            { id: 181, name: 'Kefir Mousse Mirtillo', qty: '1 pz', price: 0.99, category: 'Latticini e formaggi', notes: '', count: 1 },
-            { id: 182, name: 'Kefir da Bere', qty: '1 pz', price: 0.99, category: 'Latticini e formaggi', notes: '', count: 1 },
-            { id: 183, name: 'Burro Primia', qty: '1 pz', price: 2.59, category: 'Latticini e formaggi', notes: '', count: 1 },
-            { id: 184, name: 'Albume d\'Uovo Primia', qty: '1 pz', price: 1.50, category: 'Zucchero e latte', notes: '', count: 1 },
-            { id: 185, name: 'Zorbas Feta Greca', qty: '1 pz', price: 3.69, category: 'Latticini e formaggi', notes: '', count: 1 },
-            { id: 186, name: 'Form. Camoscio d\'Oro', qty: '1 pz', price: 3.09, category: 'Latticini e formaggi', notes: '', count: 1 },
-            { id: 187, name: 'S/G Mortadella Primia', qty: '1 pz', price: 1.79, category: 'Salumi', notes: '', count: 1 },
-            { id: 188, name: 'S/G Fesa di Tacchino', qty: '1 pz', price: 1.99, category: 'Salumi', notes: '', count: 1 },
-            { id: 189, name: 'Panna Mont. Meggle', qty: '1 pz', price: 1.59, category: 'Latticini e formaggi', notes: '', count: 1 },
-            { id: 190, name: 'Oreo Doppia Crema', qty: '1 pz', price: 1.09, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 191, name: 'Farina Farro Rieper', qty: '1 pz', price: 2.65, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 192, name: 'Farina Bianca Rieper', qty: '1 pz', price: 1.15, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 193, name: 'Assorbenti Lines', qty: '1 pz', price: 1.19, category: 'Casa', notes: '', count: 2 },
-            { id: 194, name: 'S/G Zucchero a Velo', qty: '1 pz', price: 0.65, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 195, name: 'Cioccol. Ritter Sport', qty: '1 pz', price: 1.79, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 196, name: 'Fiore Cranciotti Ket.', qty: '1 pz', price: 2.19, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 197, name: 'Puglia Taralli', qty: '1 pz', price: 1.99, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 198, name: 'Pane Bianco M/B', qty: '1 pz', price: 0.99, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 199, name: 'Hamburger Party', qty: '1 pz', price: 11.90, category: 'Carne', notes: '', count: 1 },
-            { id: 200, name: 'Pasta Lucanica Belli', qty: '1 pz', price: 4.54, category: 'Carne', notes: '', count: 1 },
-            { id: 201, name: 'Baguettes D/Bread', qty: '1 pz', price: 1.39, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 202, name: 'Macinato di Bovino', qty: '1 pz', price: 4.60, category: 'Carne', notes: '', count: 1 },
-            { id: 203, name: 'Martini Vermouth Bianco', qty: '1 pz', price: 9.90, category: 'Colazione e Bibite', notes: '', count: 1 },
-            { id: 204, name: 'S/G Maionese Primia', qty: '1 pz', price: 1.35, category: 'Casa', notes: '', count: 1 },
-            { id: 205, name: 'Ketchup Heinz Sque.', qty: '1 pz', price: 2.79, category: 'Casa', notes: '', count: 1 },
-            { id: 206, name: 'Kebab Pollo Doner', qty: '1 pz', price: 4.99, category: 'Carne', notes: '', count: 1 },
-            { id: 207, name: 'Trancio Pizza Salami', qty: '1 pz', price: 4.89, category: 'Colazione e Bibite', notes: '', count: 1 }
+            { id: 5, name: 'Carta Igienica', qty: '1 pacco', price: 3.99, category: 'Casa', notes: '', count: 5 }
         ];
 
         let state = {
@@ -756,7 +677,6 @@
             const newId = document.getElementById('shared-list-id').value.trim();
             if (newId) {
                 localStorage.setItem('smart_shopping_list_id', newId);
-                // Forziamo i prodotti di default se si passa a un nuovo ID
                 state.frequent = defaultFrequentItems;
                 saveState();
                 if (window.initFirebaseSync) {
@@ -873,12 +793,26 @@
             render();
         }
 
+        function updateNavBadge() {
+            const badge = document.getElementById('nav-active-badge');
+            if (!badge) return;
+            const count = state.items.length;
+            if (count > 0) {
+                badge.textContent = count;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
         function render() {
             const activeList = document.getElementById('active-list');
             const frequentList = document.getElementById('frequent-list');
             const historyList = document.getElementById('history-list');
             const budgetBadge = document.getElementById('total-budget-badge');
             if (!activeList || !frequentList) return;
+
+            updateNavBadge();
 
             const filtered = state.currentFilter === 'Tutti' 
                 ? state.items 
@@ -964,6 +898,46 @@
             renderDepartmentManagement();
         }
 
+        // Funzione per aggregare i prodotti uguali nella lista attiva
+        function addOrUpdateActiveItem(newName, newQty, newPrice, newCategory, newNotes) {
+            const existingItem = state.items.find(i => i.name.toLowerCase() === newName.toLowerCase() && i.category === newCategory);
+
+            if (existingItem) {
+                // Aggiorna il prezzo totale sommando il nuovo prezzo
+                existingItem.price = (parseFloat(existingItem.price) || 0) + (parseFloat(newPrice) || 0);
+
+                // Gestione intelligente dell'unione delle quantità (es. "1 l" + "1 l" o "2 pz" + "1 pz")
+                if (newQty) {
+                    if (existingItem.qty) {
+                        const matchOld = existingItem.qty.match(/^(\d+)(.*)$/);
+                        const matchNew = newQty.match(/^(\d+)(.*)$/);
+                        if (matchOld && matchNew && matchOld[2].trim() === matchNew[2].trim()) {
+                            const sumNum = parseInt(matchOld[1]) + parseInt(matchNew[1]);
+                            existingItem.qty = sumNum + matchOld[2];
+                        } else {
+                            existingItem.qty = `${existingItem.qty} + ${newQty}`;
+                        }
+                    } else {
+                        existingItem.qty = newQty;
+                    }
+                }
+                if (newNotes && !existingItem.notes.includes(newNotes)) {
+                    existingItem.notes = existingItem.notes ? `${existingItem.notes}, ${newNotes}` : newNotes;
+                }
+                existingItem.completed = false; // Se lo riaggiungi, lo rimetti da comprare
+            } else {
+                state.items.push({
+                    id: Date.now(),
+                    name: newName,
+                    qty: newQty || '',
+                    price: parseFloat(newPrice) || 0,
+                    category: newCategory,
+                    notes: newNotes || '',
+                    completed: false
+                });
+            }
+        }
+
         function addItemDirect(e) {
             e.preventDefault();
             const name = document.getElementById('quick-name').value.trim();
@@ -976,8 +950,7 @@
 
             if (!name) return;
 
-            const newItem = { id: Date.now(), name, qty, price, category, notes, completed: false };
-            state.items.push(newItem);
+            addOrUpdateActiveItem(name, qty, price, category, notes);
 
             if (isRecurring) {
                 const existing = state.frequent.find(f => f.name.toLowerCase() === name.toLowerCase());
@@ -1144,15 +1117,18 @@
 
             freq.count++;
 
-            state.items.push({
-                id: Date.now(),
-                name: freq.name,
-                qty: freq.qty || '',
-                price: freq.price || 0,
-                category: freq.category || categories[0]?.name || 'Colazione e Bibite',
-                notes: freq.notes || '',
-                completed: false
-            });
+            // Chiede quante unità/quantità aggiungere (opzionale, se premi OK usa il valore o incrementa)
+            const addQtyPrompt = prompt(`Quante quantità di "${freq.name}" vuoi aggiungere?`, freq.qty || "1 pz");
+            if (addQtyPrompt === null) return;
+
+            addOrUpdateActiveItem(
+                freq.name, 
+                addQtyPrompt.trim(), 
+                freq.price || 0, 
+                freq.category || categories[0]?.name || 'Colazione e Bibite', 
+                freq.notes || ''
+            );
+
             saveState();
             render();
         }
