@@ -27,7 +27,7 @@
         let unsubscribe = null;
 
         window.initFirebaseSync = function() {
-            const savedListId = localStorage.getItem('smart_shopping_list_id') || "famiglia-nussbaumer-Trisi";
+            const savedListId = localStorage.getItem('smart_shopping_list_id') || "Nussbaumer-Trisi";
             const listIdInput = document.getElementById('shared-list-id');
             if (listIdInput && listIdInput.value !== savedListId) {
                 listIdInput.value = savedListId;
@@ -62,7 +62,7 @@
         };
 
         window.saveCloudState = async function() {
-            const listId = localStorage.getItem('smart_shopping_list_id') || "famiglia-nussbaumer-Trisi";
+            const listId = localStorage.getItem('smart_shopping_list_id') || "Nussbaumer-Trisi";
             const docRef = doc(db, "shopping_lists", listId);
             try {
                 await setDoc(docRef, {
@@ -682,7 +682,7 @@
                 ID della famiglia attiva. Cambialo se desideri passare ad un'altra lista.
             </p>
             <div class="form-group" style="display: flex; gap: 8px;">
-                <input type="text" id="shared-list-id" value="famiglia-nussbaumer-Trisi">
+                <input type="text" id="shared-list-id" value="Nussbaumer-Trisi">
                 <button type="button" onclick="changeSharedList()" style="padding: 0 16px; font-size: 0.85rem;">Connetti</button>
             </div>
         </div>
@@ -1059,7 +1059,6 @@
 
             updateNavBadge();
 
-            // 1. Render Lista Attiva Standard
             const filtered = state.currentFilter === 'Tutti' 
                 ? state.items 
                 : state.items.filter(i => i.category === state.currentFilter);
@@ -1089,7 +1088,6 @@
                 `).join('');
             }
 
-            // 2. Render Lista Dedicata Prodotti per Ricette
             if (recipeActiveList) {
                 let sortedRecipeItems = [...state.recipeItems];
                 sortedRecipeItems.sort((a, b) => a.completed - b.completed);
@@ -1118,7 +1116,6 @@
                 }
             }
 
-            // 3. Render Archivio Ricette
             if (recipesContainer) {
                 if (state.recipes.length === 0) {
                     recipesContainer.innerHTML = '<div class="empty-state">Nessuna ricetta salvata.</div>';
@@ -1140,7 +1137,6 @@
                 }
             }
 
-            // 4. Render Prodotti Frequenti
             if (frequentList) {
                 const freqCatFilter = document.getElementById('freq-filter-category')?.value || 'Tutti';
                 const freqSortBy = document.getElementById('freq-sort-by')?.value || 'count';
@@ -1190,24 +1186,20 @@
             renderDepartmentManagement();
         }
 
-        // --- GESTIONE AUTOMATICA PARSING RICETTE DA TESTO ---
         function saveNewRecipe(e) {
             e.preventDefault();
             const title = document.getElementById('recipe-title').value.trim();
             const rawText = document.getElementById('recipe-raw-text').value.trim();
             if (!title || !rawText) return;
 
-            // Analisi automatica delle righe del testo incollato
             const lines = rawText.split('\n');
             const ingredients = [];
 
             lines.forEach(line => {
                 let cleanLine = line.trim();
                 if (!cleanLine) return;
-                // Rimuove elenchi puntati iniziali se presenti (-) (*) (•)
                 cleanLine = cleanLine.replace(/^[-*•]\s*/, '');
 
-                // Cerca corrispondenza automatica nel database supermercato
                 let matchedDbItem = supermarketDatabase.find(dbItem => cleanLine.toLowerCase().includes(dbItem.name.toLowerCase()));
 
                 let qty = "1 pz";
@@ -1215,7 +1207,6 @@
                 let category = "Zucchero e latte";
                 let img = "🍳";
 
-                // Estrazione euristica quantità (es. "200g", "2", "1 litro")
                 const qtyMatch = cleanLine.match(/^([\d/.,]+\s*(?:g|kg|ml|l|pz|cucchiai|cucchiaini|bicchieri|conf|fette)?)\b/i);
                 if (qtyMatch) {
                     qty = qtyMatch[1].trim();
@@ -1225,7 +1216,7 @@
                 if (matchedDbItem) {
                     category = matchedDbItem.category;
                     img = matchedDbItem.img;
-                    name = matchedDbItem.name; // Usa il nome standard pulito
+                    name = matchedDbItem.name;
                 }
 
                 ingredients.push({
@@ -1254,7 +1245,6 @@
             if (!recipe) return;
 
             recipe.ingredients.forEach(ing => {
-                // Aggiunge alla lista dedicata delle ricette
                 const existing = state.recipeItems.find(ri => ri.name.toLowerCase() === ing.name.toLowerCase() && ri.sourceRecipe === recipe.title);
                 if (!existing) {
                     state.recipeItems.push({
