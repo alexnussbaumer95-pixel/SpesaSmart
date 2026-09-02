@@ -572,7 +572,7 @@
                 <div class="form-group">
                     <input type="text" id="quick-notes" placeholder="Note (es. marca specifica, offerta)">
                 </div>
-                <input type="hidden" id="quick-img" value="📦">
+                <input type="hidden" id="quick-img" value="">
 
                 <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
                     <input type="checkbox" id="quick-recurring" checked style="width: 20px; height: 20px; accent-color: var(--accent-color); cursor: pointer;">
@@ -740,6 +740,8 @@
             { name: "Mele Golden", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🍎" },
             { name: "Banane", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🍌" },
             { name: "Pomodori Ciliegino", qty: "500 g", category: "Frutta e Verdura", notes: "", img: "🍅" },
+            { name: "Pomodori Datterini", qty: "500 g", category: "Frutta e Verdura", notes: "", img: "🍅" },
+            { name: "Avocado", qty: "2 pz", category: "Frutta e Verdura", notes: "", img: "🥑" },
             { name: "Insalata Indivia / Iceberg", qty: "1 pz", category: "Frutta e Verdura", notes: "", img: "🥗" },
             { name: "Zucchine", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🥒" },
             { name: "Carote", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🥕" },
@@ -748,10 +750,15 @@
             { name: "Cipolle", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🧅" },
             
             { name: "Mozzarella Fresca", qty: "3 pz", category: "Latticini e formaggi", notes: "", img: "🧀" },
-            { name: "Parmigiano Reggiano DOP", qty: "250 g", category: "Latticini e formaggi", notes: "Stagionato", img: "🧀" },
+            { name: "Mozzarella Senza Lattosio", qty: "1 pz", category: "Senza Lattosio", notes: "", img: "🧀" },
+            { name: "Yogurt", qty: "2 pz", category: "Latticini e formaggi", notes: "", img: "🥛" },
             { name: "Yogurt Greco", qty: "2 pz", category: "Latticini e formaggi", notes: "", img: "🥛" },
-            { name: "Burro", qty: "250 g", category: "Latticini e formaggi", notes: "", img: "🧈" },
+            { name: "Yogurt Senza Lattosio", qty: "2 pz", category: "Senza Lattosio", notes: "", img: "🥛" },
+            { name: "Kefir", qty: "500 ml", category: "Latticini e formaggi", notes: "", img: "🥛" },
             { name: "Ricotta Vaccina", qty: "250 g", category: "Latticini e formaggi", notes: "", img: "🧀" },
+            { name: "Parmigiano Reggiano DOP", qty: "250 g", category: "Latticini e formaggi", notes: "Stagionato", img: "🧀" },
+            { name: "Burro", qty: "250 g", category: "Latticini e formaggi", notes: "", img: "🧈" },
+            { name: "Formaggio Spalmabile Senza Lattosio", qty: "200 g", category: "Senza Lattosio", notes: "", img: "🧀" },
             { name: "Gouda / Emmental a fette", qty: "1 conf", category: "Latticini e formaggi", notes: "", img: "🥪" },
 
             { name: "Prosciutto Cotto Alta Qualità", qty: "100 g", category: "Salumi", notes: "Banco taglio", img: "🍖" },
@@ -761,6 +768,7 @@
             { name: "Petto di Tacchino arrosto", qty: "100 g", category: "Salumi", notes: "", img: "🍗" },
 
             { name: "Latte Parzialmente Scremato", qty: "1 l", category: "Zucchero e latte", notes: "", img: "🥛" },
+            { name: "Latte Senza Lattosio", qty: "1 l", category: "Senza Lattosio", notes: "Zymil", img: "🥛" },
             { name: "Zucchero Semolato", qty: "1 kg", category: "Zucchero e latte", notes: "", img: "🧂" },
             { name: "Pasta Spaghetti", qty: "500 g", category: "Zucchero e latte", notes: "Barilla", img: "🍝" },
             { name: "Pasta Penne Rigate", qty: "500 g", category: "Zucchero e latte", notes: "Barilla", img: "🍝" },
@@ -771,6 +779,7 @@
             { name: "Tonno in Olio d'Oliva", qty: "3x80 g", category: "Zucchero e latte", notes: "Rio Mare", img: "🐟" },
 
             { name: "Petto di Pollo a fette", qty: "500 g", category: "Carne", notes: "", img: "🍗" },
+            { name: "Petto di Tacchino", qty: "500 g", category: "Carne", notes: "", img: "🍗" },
             { name: "Carne Macinata Mista", qty: "400 g", category: "Carne", notes: "", img: "🥩" },
             { name: "Bistecche di Bovino Adulto", qty: "2 pz", category: "Carne", notes: "", img: "🥩" },
             { name: "Salsiccia di Suino", qty: "4 pz", category: "Carne", notes: "", img: "🌭" },
@@ -783,6 +792,8 @@
             { name: "Fette Biscottate", qty: "1 conf", category: "Colazione e Bibite", notes: "", img: "🍞" },
             { name: "Cereali Muesli / Corn Flakes", qty: "375 g", category: "Colazione e Bibite", notes: "", img: "🥣" },
             { name: "Coca Cola / Bibita gassata", qty: "1.5 l", category: "Colazione e Bibite", notes: "", img: "🥤" },
+            { name: "Prosecco", qty: "1 pz", category: "Colazione e Bibite", notes: "", img: "🍾" },
+            { name: "Red Bull", qty: "1 pz", category: "Colazione e Bibite", notes: "", img: "⚡" },
 
             { name: "Pizza Surgelata Margherita", qty: "2 pz", category: "Surgelati", notes: "", img: "🍕" },
             { name: "Spinaci Surgelati a cubetti", qty: "600 g", category: "Surgelati", notes: "", img: "🥬" },
@@ -795,11 +806,7 @@
             { name: "Detersivo Piatti", qty: "1 l", category: "Casa", notes: "", img: "🧼" },
             { name: "Sacchetti Immondizia", qty: "1 rotolo", category: "Casa", notes: "", img: "🗑️" },
             { name: "Spugne per piatti", qty: "3 pz", category: "Casa", notes: "", img: "🧽" },
-
-            { name: "Latte Senza Lattosio", qty: "1 l", category: "Senza Lattosio", notes: "Zymil", img: "🥛" },
-            { name: "Mozzarella Senza Lattosio", qty: "1 pz", category: "Senza Lattosio", notes: "", img: "🧀" },
-            { name: "Yogurt Senza Lattosio", qty: "2 pz", category: "Senza Lattosio", notes: "", img: "🥛" },
-            { name: "Formaggio Spalmabile Senza Lattosio", qty: "200 g", category: "Senza Lattosio", notes: "", img: "🧀" }
+            { name: "Accessori in acciaio", qty: "1 pz", category: "Casa", notes: "", img: "✨" }
         ];
 
         let categories = JSON.parse(localStorage.getItem('smart_shopping_categories')) || [
@@ -817,9 +824,16 @@
         let defaultFrequentItems = [
             { id: 1, name: 'Latte Senza Lattosio', qty: '1 l', category: 'Senza Lattosio', notes: 'Zymil', count: 12, img: '🥛' },
             { id: 2, name: 'Yogurt Greco', qty: '2 pz', category: 'Latticini e formaggi', notes: 'Senza lattosio', count: 9, img: '🥛' },
-            { id: 3, name: 'Pane in cassetta', qty: '1 conf', category: 'Colazione e Bibite', notes: '', count: 7, img: '🍞' },
-            { id: 4, name: 'Acqua naturale', qty: '6 bottiglie', category: 'Colazione e Bibite', notes: '', count: 6, img: '💧' },
-            { id: 5, name: 'Carta Igienica', qty: '1 pacco', category: 'Casa', notes: '', count: 5, img: '🧻' }
+            { id: 3, name: 'Kefir', qty: '500 ml', category: 'Latticini e formaggi', notes: '', count: 8, img: '🥛' },
+            { id: 4, name: 'Ricotta Vaccina', qty: '250 g', category: 'Latticini e formaggi', notes: '', count: 8, img: '🧀' },
+            { id: 5, name: 'Mozzarella Senza Lattosio', qty: '1 pz', category: 'Senza Lattosio', notes: '', count: 7, img: '🧀' },
+            { id: 6, name: 'Pomodori Datterini', qty: '500 g', category: 'Frutta e Verdura', notes: '', count: 7, img: '🍅' },
+            { id: 7, name: 'Avocado', qty: '2 pz', category: 'Frutta e Verdura', notes: '', count: 6, img: '🥑' },
+            { id: 8, name: 'Petto di Tacchino', qty: '500 g', category: 'Carne', notes: '', count: 6, img: '🍗' },
+            { id: 9, name: 'Carne Macinata Mista', qty: '400 g', category: 'Carne', notes: '', count: 6, img: '🥩' },
+            { id: 10, name: 'Prosecco', qty: '1 pz', category: 'Colazione e Bibite', notes: '', count: 5, img: '🍾' },
+            { id: 11, name: 'Red Bull', qty: '1 pz', category: 'Colazione e Bibite', notes: '', count: 5, img: '⚡' },
+            { id: 12, name: 'Carta Igienica', qty: '1 pacco', category: 'Casa', notes: '', count: 5, img: '🧻' }
         ];
 
         let defaultRecipes = [
@@ -958,8 +972,8 @@
             }
 
             dropdown.innerHTML = matches.map(m => `
-                <div class="autocomplete-suggestion" onclick="selectDatabaseItem('${escapeHtml(m.name)}', '${escapeHtml(m.qty)}', '${escapeHtml(m.category)}', '${escapeHtml(m.notes)}', '${m.img || '📦'}')">
-                    <span>${m.img || '📦'} <strong>${escapeHtml(m.name)}</strong> <small style="color: var(--text-secondary);">(${m.category})</small></span>
+                <div class="autocomplete-suggestion" onclick="selectDatabaseItem('${escapeHtml(m.name)}', '${escapeHtml(m.qty)}', '${escapeHtml(m.category)}', '${escapeHtml(m.notes)}', '${m.img || '🛒'}')">
+                    <span>${m.img || '🛒'} <strong>${escapeHtml(m.name)}</strong> <small style="color: var(--text-secondary);">(${m.category})</small></span>
                     <span style="color: var(--text-secondary); font-size: 0.8rem;">Seleziona</span>
                 </div>
             `).join('');
@@ -1070,7 +1084,7 @@
                 activeList.innerHTML = filtered.map(item => `
                     <li class="item-card ${item.completed ? 'completed' : ''}">
                         <input type="checkbox" class="item-checkbox" ${item.completed ? 'checked' : ''} onclick="toggleItem(${item.id})">
-                        <div class="item-img">${item.img || '📦'}</div>
+                        <div class="item-img">${item.img || '🛒'}</div>
                         <div class="item-details">
                             <div class="item-title">${escapeHtml(item.name)}</div>
                             <div class="item-meta">
@@ -1158,7 +1172,7 @@
                     frequentList.innerHTML = sortedFreq.map((freq) => `
                         <div class="frequent-item">
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <span style="font-size: 1.4rem;">${freq.img || '📦'}</span>
+                                <span style="font-size: 1.4rem;">${freq.img || '🛒'}</span>
                                 <div>
                                     <strong>${escapeHtml(freq.name)}</strong>
                                     <div style="font-size: 0.75rem; color: var(--text-secondary);">${escapeHtml(freq.category)} ${freq.qty ? '• ' + escapeHtml(freq.qty) : ''}</div>
@@ -1348,10 +1362,16 @@
         }
 
         function addOrUpdateActiveItem(newName, newQty, newCategory, newNotes, newImg) {
-            if (!newImg || newImg === '📦') {
+            if (!newImg || newImg === '' || newImg === '📦' || newImg === '🛒') {
                 const matchDb = supermarketDatabase.find(d => d.name.toLowerCase() === newName.toLowerCase());
-                if (matchDb) newImg = matchDb.img;
+                if (matchDb) {
+                    newImg = matchDb.img;
+                } else {
+                    const catObj = categories.find(c => c.name === newCategory);
+                    newImg = catObj ? catObj.icon : '🛒';
+                }
             }
+
             const existingItem = state.items.find(i => i.name.toLowerCase() === newName.toLowerCase() && i.category === newCategory);
             if (existingItem) {
                 if (newQty) existingItem.qty = newQty;
@@ -1365,7 +1385,7 @@
                     qty: newQty || '',
                     category: newCategory,
                     notes: newNotes || '',
-                    img: newImg || '📦',
+                    img: newImg,
                     completed: false
                 });
             }
@@ -1390,10 +1410,13 @@
                     existing.qty = qty || existing.qty;
                 } else {
                     const matchDb = supermarketDatabase.find(d => d.name.toLowerCase() === name.toLowerCase());
+                    const catObj = categories.find(c => c.name === category);
+                    const finalImg = matchDb ? matchDb.img : (img && img !== '' ? img : (catObj ? catObj.icon : '🛒'));
+                    
                     state.frequent.push({ 
                         id: Date.now() + 1, 
                         name, qty, category, notes, 
-                        img: (matchDb ? matchDb.img : (img || '📦')), 
+                        img: finalImg, 
                         count: 1 
                     });
                 }
@@ -1403,7 +1426,7 @@
             document.getElementById('quick-name').value = '';
             document.getElementById('quick-qty').value = '';
             document.getElementById('quick-notes').value = '';
-            document.getElementById('quick-img').value = '📦';
+            document.getElementById('quick-img').value = '';
             document.getElementById('quick-recurring').checked = true;
             switchTab('attiva', document.querySelectorAll('.nav-item')[1]);
         }
@@ -1545,7 +1568,7 @@
                 addQtyPrompt.trim(), 
                 freq.category || categories[0]?.name || 'Colazione e Bibite', 
                 freq.notes || '',
-                freq.img || '📦'
+                freq.img || '🛒'
             );
             saveState();
             render();
