@@ -38,10 +38,9 @@
             if (unsubscribe) unsubscribe();
 
             unsubscribe = onSnapshot(docRef, (docSnap) => {
-                const currentDataVersion = "v5_scontrini_definitivi";
+                const currentDataVersion = "v6_scontrini_edit";
                 const localVersion = localStorage.getItem('smart_shopping_version');
 
-                // Se la versione sul cloud corrisponde e contiene i dati aggiornati, li usiamo
                 if (docSnap.exists() && localVersion === currentDataVersion) {
                     const cloudData = docSnap.data();
                     if (cloudData.items) state.items = cloudData.items;
@@ -58,7 +57,6 @@
                     saveLocalState();
                     render();
                 } else {
-                    // Forzatura iniziale: carichiamo tutti i prodotti estratti dagli scontrini nel database e nel cloud
                     categories = defaultCategories;
                     state.frequent = defaultFrequentItems;
                     localStorage.setItem('smart_shopping_version', currentDataVersion);
@@ -882,7 +880,6 @@
 
         let categories = defaultCategories;
 
-        // Inserimento completo di tutti i prodotti estratti dagli scontrini come base per le frequenti
         let defaultFrequentItems = [
             { id: 1, name: 'Cipolla Rossa', qty: '1 kg', category: 'Frutta e Verdura', notes: '', count: 3, img: '🧅' },
             { id: 2, name: 'Pomodori Datterini', qty: '500 g', category: 'Frutta e Verdura', notes: '', count: 5, img: '🍅' },
@@ -1273,6 +1270,26 @@
             }
 
             renderDepartmentManagement();
+        }
+
+        function editFrequent(id) {
+            const freq = state.frequent.find(f => f.id === id);
+            if (!freq) return;
+
+            const newName = prompt("Modifica nome prodotto:", freq.name);
+            if (newName === null) return;
+            const newQty = prompt("Modifica quantità standard:", freq.qty || "");
+            if (newQty === null) return;
+            const newNotes = prompt("Modifica note:", freq.notes || "");
+            if (newNotes === null) return;
+
+            if (newName.trim()) {
+                freq.name = newName.trim();
+                freq.qty = newQty.trim();
+                freq.notes = newNotes.trim();
+                saveState();
+                render();
+            }
         }
 
         function saveNewRecipe(e) {
