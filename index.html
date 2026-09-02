@@ -38,7 +38,10 @@
             if (unsubscribe) unsubscribe();
 
             unsubscribe = onSnapshot(docRef, (docSnap) => {
-                if (docSnap.exists()) {
+                const currentDataVersion = "v3_nussbaumer_trisi";
+                const localVersion = localStorage.getItem('smart_shopping_version');
+
+                if (docSnap.exists() && localVersion === currentDataVersion) {
                     const cloudData = docSnap.data();
                     if (cloudData.items) state.items = cloudData.items;
                     if (cloudData.recipeItems) state.recipeItems = cloudData.recipeItems;
@@ -54,7 +57,15 @@
                     saveLocalState();
                     render();
                 } else {
-                    saveCloudState();
+                    // Forza il caricamento delle nuove categorie e dei prodotti frequenti aggiornati sul cloud
+                    categories = defaultCategories;
+                    state.frequent = defaultFrequentItems;
+                    localStorage.setItem('smart_shopping_version', currentDataVersion);
+                    saveState();
+                    renderCategorySelects();
+                    renderDashboardGrid();
+                    renderFilters();
+                    render();
                 }
             }, (error) => {
                 console.error("Errore di sincronizzazione Firebase:", error);
@@ -832,7 +843,7 @@
             { name: "Accessori in acciaio", qty: "1 pz", category: "Casa", notes: "", img: "✨" }
         ];
 
-        let categories = JSON.parse(localStorage.getItem('smart_shopping_categories')) || [
+        const defaultCategories = [
             { name: 'Frutta e Verdura', icon: '🌱' },
             { name: 'Uova', icon: '🥚' },
             { name: 'Latticini e formaggi', icon: '🧀' },
@@ -846,6 +857,8 @@
             { name: 'Igiene Personale', icon: '🧴' },
             { name: 'Casa', icon: '🏠' }
         ];
+
+        let categories = defaultCategories;
 
         let defaultFrequentItems = [
             { id: 1, name: 'Latte Senza Lattosio', qty: '1 l', category: 'Senza Lattosio', notes: 'Zymil', count: 12, img: '🥛' },
