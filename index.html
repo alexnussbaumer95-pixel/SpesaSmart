@@ -40,14 +40,10 @@
             unsubscribe = onSnapshot(docRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const cloudData = docSnap.data();
-                    if (cloudData.items) {
-                        state.items = cloudData.items;
-                        fixExistingItemImages();
-                    }
-                    if (cloudData.frequent) {
-                        state.frequent = cloudData.frequent;
-                        fixFrequentItemImages();
-                    }
+                    if (cloudData.items) state.items = cloudData.items;
+                    if (cloudData.recipeItems) state.recipeItems = cloudData.recipeItems;
+                    if (cloudData.recipes) state.recipes = cloudData.recipes;
+                    if (cloudData.frequent) state.frequent = cloudData.frequent;
                     if (cloudData.history) state.history = cloudData.history;
                     if (cloudData.categories) {
                         categories = cloudData.categories;
@@ -71,6 +67,8 @@
             try {
                 await setDoc(docRef, {
                     items: state.items,
+                    recipeItems: state.recipeItems,
+                    recipes: state.recipes,
                     frequent: state.frequent,
                     history: state.history,
                     categories: categories,
@@ -167,7 +165,7 @@
             background: none;
             border: none;
             color: var(--text-secondary);
-            font-size: 0.75rem;
+            font-size: 0.70rem;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -188,7 +186,7 @@
         }
 
         .nav-item span.icon {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
         }
 
         .nav-badge {
@@ -283,7 +281,7 @@
             transition: border-color 0.2s;
         }
 
-        input:focus, select:focus {
+        input:focus, select:focus, textarea:focus {
             border-color: var(--accent-color);
         }
 
@@ -622,7 +620,40 @@
         </div>
     </div>
 
-    <!-- TAB 4: PROFILO & REPARTI -->
+    <!-- TAB 4: RICETTE & LISTA DEDICATA -->
+    <div id="view-ricette" class="view">
+        <div class="card">
+            <h2>🍳 Aggiungi Nuova Ricetta (da Testo o Web)</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;">Incolla qui il testo della ricetta o gli ingredienti. Il sistema estrarrà automaticamente i prodotti:</p>
+            <form onsubmit="saveNewRecipe(event)">
+                <div class="form-group">
+                    <input type="text" id="recipe-title" placeholder="Nome della ricetta (es. Schlutzkrapfen)" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <textarea id="recipe-raw-text" rows="4" placeholder="Incolla qui gli ingredienti (es: 200g farina, 1 uovo, 100g burro...)" required></textarea>
+                </div>
+                <button type="submit" style="width: 100%;">Salva Ricetta</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>📖 Le Mie Ricette Salvate</h2>
+            <div id="recipes-list-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--accent-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h2 style="margin-bottom: 0;">🍲 Prodotti per Ricette</h2>
+            </div>
+            <ul class="item-list" id="recipe-active-list"></ul>
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                <button class="btn-secondary" onclick="clearRecipeCompleted()" style="flex: 1;">🗑️ Elimina spuntati</button>
+                <button class="btn-danger" onclick="clearRecipeAll()" style="flex: 1;">⚠️ Svuota lista ricette</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 5: PROFILO & REPARTI -->
     <div id="view-profile" class="view">
         <div class="card">
             <h2>🏷️ Gestione Reparti</h2>
@@ -669,13 +700,20 @@
                 <span class="icon">📋</span>
                 <span class="nav-badge" id="nav-active-badge">0</span>
             </span>
-            <span>Lista Attiva</span>
+            <span>Lista Spesa</span>
         </button>
         <button class="nav-item" onclick="switchTab('acquisti', this)">
             <span class="icon-wrapper">
                 <span class="icon">🔄</span>
             </span>
             <span>Ripetitive</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('ricette', this)">
+            <span class="icon-wrapper">
+                <span class="icon">🍳</span>
+                <span class="nav-badge" id="nav-recipe-badge" style="background-color: var(--accent-color);">0</span>
+            </span>
+            <span>Ricette</span>
         </button>
         <button class="nav-item" onclick="switchTab('profile', this)">
             <span class="icon-wrapper">
@@ -784,41 +822,44 @@
             { id: 5, name: 'Carta Igienica', qty: '1 pacco', category: 'Casa', notes: '', count: 5, img: '🧻' }
         ];
 
+        let defaultRecipes = [
+            {
+                id: 101,
+                title: "Schlutzkrapfen (Ravioli tirolesi)",
+                ingredients: [
+                    { name: "Farina di Tipo 00", qty: "250 g", category: "Zucchero e latte", img: "🌾" },
+                    { name: "Burro", qty: "100 g", category: "Latticini e formaggi", img: "🧈" },
+                    { name: "Ricotta Vaccina", qty: "200 g", category: "Latticini e formaggi", img: "🧀" },
+                    { name: "Spinaci Surgelati a cubetti", qty: "300 g", category: "Surgelati", img: "🥬" }
+                ]
+            }
+        ];
+
         let state = {
             items: JSON.parse(localStorage.getItem('smart_shopping_items')) || [],
+            recipeItems: JSON.parse(localStorage.getItem('smart_shopping_recipe_items')) || [],
+            recipes: JSON.parse(localStorage.getItem('smart_shopping_recipes')) || defaultRecipes,
             frequent: JSON.parse(localStorage.getItem('smart_shopping_frequent')) || defaultFrequentItems,
             history: JSON.parse(localStorage.getItem('smart_shopping_history')) || [],
             currentFilter: 'Tutti'
         };
 
-        // Funzione per aggiornare le immagini dei prodotti esistenti basandosi sul database
         function fixExistingItemImages() {
             state.items.forEach(item => {
                 if (!item.img || item.img === '📦') {
                     const match = supermarketDatabase.find(d => d.name.toLowerCase() === item.name.toLowerCase());
-                    if (match) {
-                        item.img = match.img;
-                    }
+                    if (match) item.img = match.img;
                 }
             });
-        }
-
-        function fixFrequentItemImages() {
-            state.frequent.forEach(freq => {
-                if (!freq.id) freq.id = Date.now() + Math.random();
-                if (!freq.img || freq.img === '📦') {
-                    const match = supermarketDatabase.find(d => d.name.toLowerCase() === freq.name.toLowerCase());
-                    if (match) {
-                        freq.img = match.img;
-                    } else {
-                        freq.img = '📦';
-                    }
+            state.recipeItems.forEach(item => {
+                if (!item.img || item.img === '📦') {
+                    const match = supermarketDatabase.find(d => d.name.toLowerCase() === item.name.toLowerCase());
+                    if (match) item.img = match.img;
                 }
             });
         }
 
         fixExistingItemImages();
-        fixFrequentItemImages();
 
         let confirmCallback = null;
 
@@ -837,6 +878,8 @@
 
         function saveLocalState() {
             localStorage.setItem('smart_shopping_items', JSON.stringify(state.items));
+            localStorage.setItem('smart_shopping_recipe_items', JSON.stringify(state.recipeItems));
+            localStorage.setItem('smart_shopping_recipes', JSON.stringify(state.recipes));
             localStorage.setItem('smart_shopping_frequent', JSON.stringify(state.frequent));
             localStorage.setItem('smart_shopping_history', JSON.stringify(state.history));
             localStorage.setItem('smart_shopping_categories', JSON.stringify(categories));
@@ -938,33 +981,6 @@
             }
         });
 
-        function editFrequent(id) {
-            const freq = state.frequent.find(f => f.id === id);
-            if (!freq) return;
-
-            const newName = prompt("Modifica Nome Prodotto:", freq.name);
-            if (newName === null) return;
-            
-            const newQty = prompt("Modifica Quantità:", freq.qty || "");
-            if (newQty === null) return;
-            
-            const newNotes = prompt("Modifica Note:", freq.notes || "");
-            if (newNotes === null) return;
-
-            if (newName.trim()) {
-                freq.name = newName.trim();
-                freq.qty = newQty.trim();
-                freq.notes = newNotes.trim();
-                
-                // Aggiorna l'immagine se il nome corrisponde a qualcosa nel database
-                const match = supermarketDatabase.find(d => d.name.toLowerCase() === freq.name.toLowerCase());
-                if (match) freq.img = match.img;
-
-                saveState();
-                render();
-            }
-        }
-
         function renderDashboardGrid() {
             const grid = document.getElementById('category-grid');
             if (!grid) return;
@@ -1010,32 +1026,47 @@
 
         function updateNavBadge() {
             const badge = document.getElementById('nav-active-badge');
-            if (!badge) return;
-            const count = state.items.length;
-            if (count > 0) {
-                badge.textContent = count;
-                badge.style.display = 'inline-block';
-            } else {
-                badge.style.display = 'none';
+            const recipeBadge = document.getElementById('nav-recipe-badge');
+            
+            if (badge) {
+                const count = state.items.length;
+                if (count > 0) {
+                    badge.textContent = count;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+
+            if (recipeBadge) {
+                const rCount = state.recipeItems.length;
+                if (rCount > 0) {
+                    recipeBadge.textContent = rCount;
+                    recipeBadge.style.display = 'inline-block';
+                } else {
+                    recipeBadge.style.display = 'none';
+                }
             }
         }
 
         function render() {
             const activeList = document.getElementById('active-list');
+            const recipeActiveList = document.getElementById('recipe-active-list');
             const frequentList = document.getElementById('frequent-list');
             const historyList = document.getElementById('history-list');
-            if (!activeList || !frequentList) return;
+            const recipesContainer = document.getElementById('recipes-list-container');
+            if (!activeList) return;
 
             updateNavBadge();
 
+            // 1. Render Lista Attiva Standard
             const filtered = state.currentFilter === 'Tutti' 
                 ? state.items 
                 : state.items.filter(i => i.category === state.currentFilter);
-
             filtered.sort((a, b) => a.completed - b.completed);
 
             if (filtered.length === 0) {
-                activeList.innerHTML = '<div class="empty-state">Nessun articolo in questa sezione.</div>';
+                activeList.innerHTML = '<div class="empty-state">Nessun articolo nella spesa quotidiana.</div>';
             } else {
                 activeList.innerHTML = filtered.map(item => `
                     <li class="item-card ${item.completed ? 'completed' : ''}">
@@ -1058,74 +1089,238 @@
                 `).join('');
             }
 
-            const freqCatFilter = document.getElementById('freq-filter-category')?.value || 'Tutti';
-            const freqSortBy = document.getElementById('freq-sort-by')?.value || 'count';
+            // 2. Render Lista Dedicata Prodotti per Ricette
+            if (recipeActiveList) {
+                let sortedRecipeItems = [...state.recipeItems];
+                sortedRecipeItems.sort((a, b) => a.completed - b.completed);
 
-            let sortedFreq = [...state.frequent];
-            if (freqCatFilter !== 'Tutti') {
-                sortedFreq = sortedFreq.filter(f => f.category === freqCatFilter);
-            }
-
-            if (freqSortBy === 'count') {
-                sortedFreq.sort((a, b) => b.count - a.count);
-            } else if (freqSortBy === 'name') {
-                sortedFreq.sort((a, b) => a.name.localeCompare(b.name));
-            }
-
-            if (sortedFreq.length === 0) {
-                frequentList.innerHTML = '<div class="empty-state">Nessuna spesa frequente trovata.</div>';
-            } else {
-                frequentList.innerHTML = sortedFreq.map((freq) => `
-                    <div class="frequent-item">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 1.4rem;">${freq.img || '📦'}</span>
-                            <div>
-                                <strong>${escapeHtml(freq.name)}</strong>
-                                <div style="font-size: 0.75rem; color: var(--text-secondary);">${escapeHtml(freq.category)} ${freq.qty ? '• ' + escapeHtml(freq.qty) : ''}</div>
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 6px;">
-                            <button type="button" onclick="addFrequent(${freq.id})" style="padding: 6px 10px; font-size: 0.8rem;">➕ Aggiungi</button>
-                            <button type="button" class="btn-secondary" onclick="editFrequent(${freq.id})" style="padding: 6px 10px; font-size: 0.8rem;" title="Modifica anagrafica">✏️</button>
-                            <button type="button" class="btn-danger" onclick="deleteFrequent(${freq.id})" style="padding: 6px 10px; font-size: 0.8rem;" title="Elimina da anagrafica">&times;</button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            if (historyList) {
-                if (state.history.length === 0) {
-                    historyList.innerHTML = '<div class="empty-state" style="padding: 12px;">Nessuno storico registrato.</div>';
+                if (sortedRecipeItems.length === 0) {
+                    recipeActiveList.innerHTML = '<div class="empty-state">Nessun ingrediente da ricette aggiunto.</div>';
                 } else {
-                    historyList.innerHTML = state.history.map((hist) => `
-                        <div style="background: var(--bg-color); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <strong style="font-size: 0.9rem;">📅 ${hist.date}</strong>
+                    recipeActiveList.innerHTML = sortedRecipeItems.map(item => `
+                        <li class="item-card ${item.completed ? 'completed' : ''}">
+                            <input type="checkbox" class="item-checkbox" ${item.completed ? 'checked' : ''} onclick="toggleRecipeItem(${item.id})">
+                            <div class="item-img">${item.img || '🍳'}</div>
+                            <div class="item-details">
+                                <div class="item-title">${escapeHtml(item.name)} <span style="font-size:0.75rem; color:var(--accent-color);">(${escapeHtml(item.sourceRecipe || 'Ricetta')})</span></div>
+                                <div class="item-meta">
+                                    <span class="badge">${escapeHtml(item.category)}</span>
+                                    <div class="qty-control">
+                                        <button class="qty-btn" onclick="adjustRecipeQty(${item.id}, -1)">-</button>
+                                        <span>${item.qty ? escapeHtml(item.qty) : '1 pz'}</span>
+                                        <button class="qty-btn" onclick="adjustRecipeQty(${item.id}, 1)">+</button>
+                                    </div>
+                                </div>
                             </div>
-                            <div style="font-size: 0.85rem; color: var(--text-secondary);">${hist.itemsCount} articoli</div>
+                            <button class="delete-btn" onclick="deleteRecipeItem(${item.id})">&times;</button>
+                        </li>
+                    `).join('');
+                }
+            }
+
+            // 3. Render Archivio Ricette
+            if (recipesContainer) {
+                if (state.recipes.length === 0) {
+                    recipesContainer.innerHTML = '<div class="empty-state">Nessuna ricetta salvata.</div>';
+                } else {
+                    recipesContainer.innerHTML = state.recipes.map(recipe => `
+                        <div style="background: var(--bg-color); padding: 12px; border-radius: 12px; border: 1px solid var(--border-color);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <strong>🍳 ${escapeHtml(recipe.title)}</strong>
+                                <div style="display: flex; gap: 6px;">
+                                    <button type="button" onclick="addRecipeToShoppingList(${recipe.id})" style="padding: 6px 10px; font-size: 0.8rem;">🛒 Aggiungi alla Spesa</button>
+                                    <button type="button" class="btn-danger" onclick="deleteRecipe(${recipe.id})" style="padding: 6px 10px; font-size: 0.8rem;">&times;</button>
+                                </div>
+                            </div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                                Ingredienti: ${recipe.ingredients.map(i => `${i.img || '•'} ${i.qty ? i.qty + ' ' : ''}${i.name}`).join(', ')}
+                            </div>
                         </div>
                     `).join('');
                 }
             }
 
+            // 4. Render Prodotti Frequenti
+            if (frequentList) {
+                const freqCatFilter = document.getElementById('freq-filter-category')?.value || 'Tutti';
+                const freqSortBy = document.getElementById('freq-sort-by')?.value || 'count';
+
+                let sortedFreq = [...state.frequent];
+                if (freqCatFilter !== 'Tutti') {
+                    sortedFreq = sortedFreq.filter(f => f.category === freqCatFilter);
+                }
+
+                if (freqSortBy === 'count') {
+                    sortedFreq.sort((a, b) => b.count - a.count);
+                } else if (freqSortBy === 'name') {
+                    sortedFreq.sort((a, b) => a.name.localeCompare(b.name));
+                }
+
+                if (sortedFreq.length === 0) {
+                    frequentList.innerHTML = '<div class="empty-state">Nessuna spesa frequente trovata.</div>';
+                } else {
+                    frequentList.innerHTML = sortedFreq.map((freq) => `
+                        <div class="frequent-item">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 1.4rem;">${freq.img || '📦'}</span>
+                                <div>
+                                    <strong>${escapeHtml(freq.name)}</strong>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary);">${escapeHtml(freq.category)} ${freq.qty ? '• ' + escapeHtml(freq.qty) : ''}</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 6px;">
+                                <button type="button" onclick="addFrequent(${freq.id})" style="padding: 6px 10px; font-size: 0.8rem;">➕ Aggiungi</button>
+                                <button type="button" class="btn-secondary" onclick="editFrequent(${freq.id})" style="padding: 6px 10px; font-size: 0.8rem;" title="Modifica anagrafica">✏️</button>
+                                <button type="button" class="btn-danger" onclick="deleteFrequent(${freq.id})" style="padding: 6px 10px; font-size: 0.8rem;" title="Elimina">&times;</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            if (historyList && state.history.length > 0) {
+                historyList.innerHTML = state.history.map((hist) => `
+                    <div style="background: var(--bg-color); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                        <div><strong style="font-size: 0.9rem;">📅 ${hist.date}</strong></div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">${hist.itemsCount} articoli</div>
+                    </div>
+                `).join('');
+            }
+
             renderDepartmentManagement();
+        }
+
+        // --- GESTIONE AUTOMATICA PARSING RICETTE DA TESTO ---
+        function saveNewRecipe(e) {
+            e.preventDefault();
+            const title = document.getElementById('recipe-title').value.trim();
+            const rawText = document.getElementById('recipe-raw-text').value.trim();
+            if (!title || !rawText) return;
+
+            // Analisi automatica delle righe del testo incollato
+            const lines = rawText.split('\n');
+            const ingredients = [];
+
+            lines.forEach(line => {
+                let cleanLine = line.trim();
+                if (!cleanLine) return;
+                // Rimuove elenchi puntati iniziali se presenti (-) (*) (•)
+                cleanLine = cleanLine.replace(/^[-*•]\s*/, '');
+
+                // Cerca corrispondenza automatica nel database supermercato
+                let matchedDbItem = supermarketDatabase.find(dbItem => cleanLine.toLowerCase().includes(dbItem.name.toLowerCase()));
+
+                let qty = "1 pz";
+                let name = cleanLine;
+                let category = "Zucchero e latte";
+                let img = "🍳";
+
+                // Estrazione euristica quantità (es. "200g", "2", "1 litro")
+                const qtyMatch = cleanLine.match(/^([\d/.,]+\s*(?:g|kg|ml|l|pz|cucchiai|cucchiaini|bicchieri|conf|fette)?)\b/i);
+                if (qtyMatch) {
+                    qty = qtyMatch[1].trim();
+                    name = cleanLine.replace(qtyMatch[0], '').trim();
+                }
+
+                if (matchedDbItem) {
+                    category = matchedDbItem.category;
+                    img = matchedDbItem.img;
+                    name = matchedDbItem.name; // Usa il nome standard pulito
+                }
+
+                ingredients.push({
+                    name: name || cleanLine,
+                    qty: qty,
+                    category: category,
+                    img: img
+                });
+            });
+
+            state.recipes.push({
+                id: Date.now(),
+                title: title,
+                ingredients: ingredients
+            });
+
+            saveState();
+            document.getElementById('recipe-title').value = '';
+            document.getElementById('recipe-raw-text').value = '';
+            render();
+            alert("Ricetta aggiunta con successo!");
+        }
+
+        function addRecipeToShoppingList(recipeId) {
+            const recipe = state.recipes.find(r => r.id === recipeId);
+            if (!recipe) return;
+
+            recipe.ingredients.forEach(ing => {
+                // Aggiunge alla lista dedicata delle ricette
+                const existing = state.recipeItems.find(ri => ri.name.toLowerCase() === ing.name.toLowerCase() && ri.sourceRecipe === recipe.title);
+                if (!existing) {
+                    state.recipeItems.push({
+                        id: Date.now() + Math.random(),
+                        name: ing.name,
+                        qty: ing.qty || '1 pz',
+                        category: ing.category || 'Zucchero e latte',
+                        img: ing.img || '🍳',
+                        sourceRecipe: recipe.title,
+                        completed: false
+                    });
+                }
+            });
+
+            saveState();
+            render();
+            switchTab('ricette', document.querySelectorAll('.nav-item')[3]);
+            alert(`Ingredienti di "${recipe.title}" aggiunti alla lista ricette!`);
+        }
+
+        function deleteRecipe(id) {
+            showConfirmModal("Elimina Ricetta", "Vuoi rimuovere questa ricetta dall'archivio?", () => {
+                state.recipes = state.recipes.filter(r => r.id !== id);
+                saveState();
+                render();
+            });
+        }
+
+        function toggleRecipeItem(id) {
+            const item = state.recipeItems.find(i => i.id === id);
+            if (item) {
+                item.completed = !item.completed;
+                saveState();
+                render();
+            }
+        }
+
+        function deleteRecipeItem(id) {
+            state.recipeItems = state.recipeItems.filter(i => i.id !== id);
+            saveState();
+            render();
+        }
+
+        function clearRecipeCompleted() {
+            state.recipeItems = state.recipeItems.filter(i => !i.completed);
+            saveState();
+            render();
+        }
+
+        function clearRecipeAll() {
+            showConfirmModal("Svuota Lista Ricette", "Vuoi svuotare tutti i prodotti della sezione ricette?", () => {
+                state.recipeItems = [];
+                saveState();
+                render();
+            });
         }
 
         function sortByRoute() {
             state.items.sort((a, b) => {
-                if (a.completed !== b.completed) {
-                    return a.completed ? 1 : -1;
-                }
-                
+                if (a.completed !== b.completed) return a.completed ? 1 : -1;
                 let indexA = supermarketRouteOrder.indexOf(a.category);
                 let indexB = supermarketRouteOrder.indexOf(b.category);
-
                 if (indexA === -1) indexA = 999;
                 if (indexB === -1) indexB = 999;
-
                 return indexA - indexB;
             });
-
             saveState();
             render();
             state.currentFilter = 'Tutti';
@@ -1135,10 +1330,7 @@
         function adjustQty(id, delta) {
             const item = state.items.find(i => i.id === id);
             if (!item) return;
-
-            let currentQtyStr = item.qty || "1 pz";
-            let match = currentQtyStr.match(/^(\d+)(.*)$/);
-
+            let match = (item.qty || "1 pz").match(/^(\d+)(.*)$/);
             if (match) {
                 let num = parseInt(match[1]) + delta;
                 if (num < 1) num = 1;
@@ -1146,41 +1338,35 @@
             } else {
                 item.qty = "1 pz";
             }
+            saveState();
+            render();
+        }
 
+        function adjustRecipeQty(id, delta) {
+            const item = state.recipeItems.find(i => i.id === id);
+            if (!item) return;
+            let match = (item.qty || "1 pz").match(/^(\d+)(.*)$/);
+            if (match) {
+                let num = parseInt(match[1]) + delta;
+                if (num < 1) num = 1;
+                item.qty = num + match[2];
+            } else {
+                item.qty = "1 pz";
+            }
             saveState();
             render();
         }
 
         function addOrUpdateActiveItem(newName, newQty, newCategory, newNotes, newImg) {
-            // Se l'immagine non è specificata, prova a cercarla nel database
             if (!newImg || newImg === '📦') {
                 const matchDb = supermarketDatabase.find(d => d.name.toLowerCase() === newName.toLowerCase());
                 if (matchDb) newImg = matchDb.img;
             }
-
             const existingItem = state.items.find(i => i.name.toLowerCase() === newName.toLowerCase() && i.category === newCategory);
-
             if (existingItem) {
-                if (newQty) {
-                    if (existingItem.qty) {
-                        const matchOld = existingItem.qty.match(/^(\d+)(.*)$/);
-                        const matchNew = newQty.match(/^(\d+)(.*)$/);
-                        if (matchOld && matchNew && matchOld[2].trim() === matchNew[2].trim()) {
-                            const sumNum = parseInt(matchOld[1]) + parseInt(matchNew[1]);
-                            existingItem.qty = sumNum + matchOld[2];
-                        } else {
-                            existingItem.qty = `${existingItem.qty} + ${newQty}`;
-                        }
-                    } else {
-                        existingItem.qty = newQty;
-                    }
-                }
-                if (newNotes && !existingItem.notes.includes(newNotes)) {
-                    existingItem.notes = existingItem.notes ? `${existingItem.notes}, ${newNotes}` : newNotes;
-                }
-                if (newImg && newImg !== '📦') {
-                    existingItem.img = newImg;
-                }
+                if (newQty) existingItem.qty = newQty;
+                if (newNotes) existingItem.notes = newNotes;
+                if (newImg) existingItem.img = newImg;
                 existingItem.completed = false;
             } else {
                 state.items.push({
@@ -1205,7 +1391,6 @@
             const isRecurring = document.getElementById('quick-recurring').checked;
 
             if (!name) return;
-
             addOrUpdateActiveItem(name, qty, category, notes, img);
 
             if (isRecurring) {
@@ -1213,17 +1398,11 @@
                 if (existing) {
                     existing.count++;
                     existing.qty = qty || existing.qty;
-                    existing.category = category;
-                    existing.notes = notes || existing.notes;
-                    if (img && img !== '📦') existing.img = img;
                 } else {
                     const matchDb = supermarketDatabase.find(d => d.name.toLowerCase() === name.toLowerCase());
                     state.frequent.push({ 
                         id: Date.now() + 1, 
-                        name, 
-                        qty, 
-                        category, 
-                        notes, 
+                        name, qty, category, notes, 
                         img: (matchDb ? matchDb.img : (img || '📦')), 
                         count: 1 
                     });
@@ -1236,7 +1415,6 @@
             document.getElementById('quick-notes').value = '';
             document.getElementById('quick-img').value = '📦';
             document.getElementById('quick-recurring').checked = true;
-            
             switchTab('attiva', document.querySelectorAll('.nav-item')[1]);
         }
 
@@ -1268,13 +1446,10 @@
         }
 
         function clearAll() {
-            showConfirmModal("Svuota Lista", "Vuoi svuotare tutta la lista attiva? (I dati verranno salvati nello storico)", () => {
+            showConfirmModal("Svuota Lista Spesa", "Vuoi svuotare tutta la lista attiva quotidiana?", () => {
                 if (state.items.length > 0) {
                     let nowStr = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-                    state.history.unshift({
-                        date: nowStr,
-                        itemsCount: state.items.length
-                    });
+                    state.history.unshift({ date: nowStr, itemsCount: state.items.length });
                     if (state.history.length > 10) state.history.pop();
                 }
                 state.items = [];
@@ -1293,7 +1468,6 @@
         function renderFilters() {
             const container = document.getElementById('filters-container');
             if (!container) return;
-            
             let html = `<div class="filter-chip ${state.currentFilter === 'Tutti' ? 'active' : ''}" onclick="setFilter('Tutti', this)">Tutti</div>`;
             categories.forEach(cat => {
                 const isActive = state.currentFilter === cat.name ? 'active' : '';
@@ -1305,12 +1479,10 @@
         function renderDepartmentManagement() {
             const list = document.getElementById('department-manage-list');
             if (!list) return;
-
             if (categories.length === 0) {
                 list.innerHTML = '<div class="empty-state">Nessun reparto disponibile.</div>';
                 return;
             }
-
             list.innerHTML = categories.map((cat, idx) => `
                 <div style="background: var(--bg-color); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                     <div style="display: flex; align-items: center; gap: 8px;">
@@ -1330,7 +1502,6 @@
             const icon = document.getElementById('new-dept-icon').value.trim();
             const name = document.getElementById('new-dept-name').value.trim();
             if (!icon || !name) return;
-
             categories.push({ name, icon });
             saveState();
             renderDashboardGrid();
@@ -1345,7 +1516,6 @@
             if (newName === null) return;
             const newIcon = prompt("Modifica emoji reparto:", cat.icon);
             if (newIcon === null) return;
-
             if (newName.trim()) {
                 categories[index].name = newName.trim();
                 if (newIcon.trim()) categories[index].icon = newIcon.trim();
@@ -1377,12 +1547,9 @@
         function addFrequent(id) {
             const freq = state.frequent.find(f => f.id === id);
             if (!freq) return;
-
             freq.count++;
-
             const addQtyPrompt = prompt(`Quante quantità di "${freq.name}" vuoi aggiungere?`, freq.qty || "1 pz");
             if (addQtyPrompt === null) return;
-
             addOrUpdateActiveItem(
                 freq.name, 
                 addQtyPrompt.trim(), 
@@ -1390,7 +1557,6 @@
                 freq.notes || '',
                 freq.img || '📦'
             );
-
             saveState();
             render();
         }
