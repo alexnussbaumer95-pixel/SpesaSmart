@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Spesa Smart Dashboard</title>
+    <!-- Favicon carrello della spesa -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>">
     <!-- Firebase SDK v10 (Modular via CDN) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -448,6 +450,30 @@
             border-color: var(--accent-color);
         }
 
+        .qty-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1px 6px;
+        }
+
+        .qty-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            padding: 0 4px;
+        }
+
+        .qty-btn:hover {
+            color: var(--accent-color);
+        }
+
         .delete-btn {
             background: none;
             border: none;
@@ -530,7 +556,6 @@
                 </div>
                 <div class="row form-group">
                     <input type="text" id="quick-qty" placeholder="Quantità (es. 1 pz / 1 kg)">
-                    <input type="number" id="quick-price" step="0.01" min="0" placeholder="Prezzo € (opzionale)" style="display:none;">
                 </div>
                 <div class="form-group">
                     <select id="quick-category"></select>
@@ -658,69 +683,69 @@
 
     <script>
         const supermarketDatabase = [
-            { name: "Mele Golden", qty: "1 kg", price: 2.20, category: "Frutta e Verdura", notes: "" },
-            { name: "Banane", qty: "1 kg", price: 1.80, category: "Frutta e Verdura", notes: "" },
-            { name: "Pomodori Ciliegino", qty: "500 g", price: 1.99, category: "Frutta e Verdura", notes: "" },
-            { name: "Insalata Indivia / Iceberg", qty: "1 pz", price: 1.30, category: "Frutta e Verdura", notes: "" },
-            { name: "Zucchine", qty: "1 kg", price: 2.50, category: "Frutta e Verdura", notes: "" },
-            { name: "Carote", qty: "1 kg", price: 1.20, category: "Frutta e Verdura", notes: "" },
-            { name: "Patate", qty: "2 kg", price: 2.80, category: "Frutta e Verdura", notes: "" },
-            { name: "Limoni", qty: "500 g", price: 1.50, category: "Frutta e Verdura", notes: "" },
-            { name: "Cipolle", qty: "1 kg", price: 1.40, category: "Frutta e Verdura", notes: "" },
+            { name: "Mele Golden", qty: "1 kg", category: "Frutta e Verdura", notes: "" },
+            { name: "Banane", qty: "1 kg", category: "Frutta e Verdura", notes: "" },
+            { name: "Pomodori Ciliegino", qty: "500 g", category: "Frutta e Verdura", notes: "" },
+            { name: "Insalata Indivia / Iceberg", qty: "1 pz", category: "Frutta e Verdura", notes: "" },
+            { name: "Zucchine", qty: "1 kg", category: "Frutta e Verdura", notes: "" },
+            { name: "Carote", qty: "1 kg", category: "Frutta e Verdura", notes: "" },
+            { name: "Patate", qty: "2 kg", category: "Frutta e Verdura", notes: "" },
+            { name: "Limoni", qty: "500 g", category: "Frutta e Verdura", notes: "" },
+            { name: "Cipolle", qty: "1 kg", category: "Frutta e Verdura", notes: "" },
             
-            { name: "Mozzarella Fresca", qty: "3 pz", price: 2.70, category: "Latticini e formaggi", notes: "" },
-            { name: "Parmigiano Reggiano DOP", qty: "250 g", price: 4.50, category: "Latticini e formaggi", notes: "Stagionato" },
-            { name: "Yogurt Greco", qty: "2 pz", price: 2.20, category: "Latticini e formaggi", notes: "" },
-            { name: "Burro", qty: "250 g", price: 2.40, category: "Latticini e formaggi", notes: "" },
-            { name: "Ricotta Vaccina", qty: "250 g", price: 1.60, category: "Latticini e formaggi", notes: "" },
-            { name: "Gouda / Emmental a fette", qty: "1 conf", price: 2.10, category: "Latticini e formaggi", notes: "" },
+            { name: "Mozzarella Fresca", qty: "3 pz", category: "Latticini e formaggi", notes: "" },
+            { name: "Parmigiano Reggiano DOP", qty: "250 g", category: "Latticini e formaggi", notes: "Stagionato" },
+            { name: "Yogurt Greco", qty: "2 pz", category: "Latticini e formaggi", notes: "" },
+            { name: "Burro", qty: "250 g", category: "Latticini e formaggi", notes: "" },
+            { name: "Ricotta Vaccina", qty: "250 g", category: "Latticini e formaggi", notes: "" },
+            { name: "Gouda / Emmental a fette", qty: "1 conf", category: "Latticini e formaggi", notes: "" },
 
-            { name: "Prosciutto Cotto Alta Qualità", qty: "100 g", price: 2.50, category: "Salumi", notes: "Banco taglio" },
-            { name: "Prosciutto Crudo di Parma", qty: "100 g", price: 3.20, category: "Salumi", notes: "" },
-            { name: "Salame Milano", qty: "100 g", price: 2.00, category: "Salumi", notes: "" },
-            { name: "Speck dell'Alto Adige", qty: "100 g", price: 2.80, category: "Salumi", notes: "" },
-            { name: "Petto di Tacchino arrosto", qty: "100 g", price: 2.20, category: "Salumi", notes: "" },
+            { name: "Prosciutto Cotto Alta Qualità", qty: "100 g", category: "Salumi", notes: "Banco taglio" },
+            { name: "Prosciutto Crudo di Parma", qty: "100 g", category: "Salumi", notes: "" },
+            { name: "Salame Milano", qty: "100 g", category: "Salumi", notes: "" },
+            { name: "Speck dell'Alto Adige", qty: "100 g", category: "Salumi", notes: "" },
+            { name: "Petto di Tacchino arrosto", qty: "100 g", category: "Salumi", notes: "" },
 
-            { name: "Latte Parzialmente Scremato", qty: "1 l", price: 1.29, category: "Zucchero e latte", notes: "" },
-            { name: "Zucchero Semolato", qty: "1 kg", price: 1.35, category: "Zucchero e latte", notes: "" },
-            { name: "Pasta Spaghetti", qty: "500 g", price: 0.95, category: "Zucchero e latte", notes: "Barilla" },
-            { name: "Pasta Penne Rigate", qty: "500 g", price: 0.95, category: "Zucchero e latte", notes: "Barilla" },
-            { name: "Passata di Pomodoro", qty: "700 g", price: 1.40, category: "Zucchero e latte", notes: "Mutti" },
-            { name: "Olio Extravergine d'Oliva", qty: "1 l", price: 8.50, category: "Zucchero e latte", notes: "" },
-            { name: "Farina di Tipo 00", qty: "1 kg", price: 0.90, category: "Zucchero e latte", notes: "" },
-            { name: "Riso Arborio", qty: "1 kg", price: 2.30, category: "Zucchero e latte", notes: "" },
-            { name: "Tonno in Olio d'Oliva", qty: "3x80 g", price: 3.50, category: "Zucchero e latte", notes: "Rio Mare" },
+            { name: "Latte Parzialmente Scremato", qty: "1 l", category: "Zucchero e latte", notes: "" },
+            { name: "Zucchero Semolato", qty: "1 kg", category: "Zucchero e latte", notes: "" },
+            { name: "Pasta Spaghetti", qty: "500 g", category: "Zucchero e latte", notes: "Barilla" },
+            { name: "Pasta Penne Rigate", qty: "500 g", category: "Zucchero e latte", notes: "Barilla" },
+            { name: "Passata di Pomodoro", qty: "700 g", category: "Zucchero e latte", notes: "Mutti" },
+            { name: "Olio Extravergine d'Oliva", qty: "1 l", category: "Zucchero e latte", notes: "" },
+            { name: "Farina di Tipo 00", qty: "1 kg", category: "Zucchero e latte", notes: "" },
+            { name: "Riso Arborio", qty: "1 kg", category: "Zucchero e latte", notes: "" },
+            { name: "Tonno in Olio d'Oliva", qty: "3x80 g", category: "Zucchero e latte", notes: "Rio Mare" },
 
-            { name: "Petto di Pollo a fette", qty: "500 g", price: 5.50, category: "Carne", notes: "" },
-            { name: "Carne Macinata Mista", qty: "400 g", price: 4.20, category: "Carne", notes: "" },
-            { name: "Bistecche di Bovino Adulto", qty: "2 pz", price: 6.90, category: "Carne", notes: "" },
-            { name: "Salsiccia di Suino", qty: "4 pz", price: 3.80, category: "Carne", notes: "" },
-            { name: "Hamburger di Tacchino/Pollo", qty: "2 pz", price: 2.90, category: "Carne", notes: "" },
+            { name: "Petto di Pollo a fette", qty: "500 g", category: "Carne", notes: "" },
+            { name: "Carne Macinata Mista", qty: "400 g", category: "Carne", notes: "" },
+            { name: "Bistecche di Bovino Adulto", qty: "2 pz", category: "Carne", notes: "" },
+            { name: "Salsiccia di Suino", qty: "4 pz", category: "Carne", notes: "" },
+            { name: "Hamburger di Tacchino/Pollo", qty: "2 pz", category: "Carne", notes: "" },
 
-            { name: "Caffè macinato", qty: "250 g", price: 3.90, category: "Colazione e Bibite", notes: "Lavazza" },
-            { name: "Acqua Naturale", qty: "6x1.5 l", price: 2.10, category: "Colazione e Bibite", notes: "" },
-            { name: "Acqua Frizzante", qty: "6x1.5 l", price: 2.10, category: "Colazione e Bibite", notes: "" },
-            { name: "Biscotti per Colazione", qty: "400 g", price: 2.50, category: "Colazione e Bibite", notes: "Mulino Bianco" },
-            { name: "Fette Biscottate", qty: "1 conf", price: 1.70, category: "Colazione e Bibite", notes: "" },
-            { name: "Cereali Muesli / Corn Flakes", qty: "375 g", price: 2.60, category: "Colazione e Bibite", notes: "" },
-            { name: "Coca Cola / Bibita gassata", qty: "1.5 l", price: 2.00, category: "Colazione e Bibite", notes: "" },
+            { name: "Caffè macinato", qty: "250 g", category: "Colazione e Bibite", notes: "Lavazza" },
+            { name: "Acqua Naturale", qty: "6x1.5 l", category: "Colazione e Bibite", notes: "" },
+            { name: "Acqua Frizzante", qty: "6x1.5 l", category: "Colazione e Bibite", notes: "" },
+            { name: "Biscotti per Colazione", qty: "400 g", category: "Colazione e Bibite", notes: "" },
+            { name: "Fette Biscottate", qty: "1 conf", category: "Colazione e Bibite", notes: "" },
+            { name: "Cereali Muesli / Corn Flakes", qty: "375 g", category: "Colazione e Bibite", notes: "" },
+            { name: "Coca Cola / Bibita gassata", qty: "1.5 l", category: "Colazione e Bibite", notes: "" },
 
-            { name: "Pizza Surgelata Margherita", qty: "2 pz", price: 3.80, category: "Surgelati", notes: "" },
-            { name: "Spinaci Surgelati a cubetti", qty: "600 g", price: 1.80, category: "Surgelati", notes: "" },
-            { name: "Filetti di Merluzzo", qty: "400 g", price: 4.50, category: "Surgelati", notes: "" },
-            { name: "Patatine Fritte surgelate", qty: "1 kg", price: 2.50, category: "Surgelati", notes: "" },
+            { name: "Pizza Surgelata Margherita", qty: "2 pz", category: "Surgelati", notes: "" },
+            { name: "Spinaci Surgelati a cubetti", qty: "600 g", category: "Surgelati", notes: "" },
+            { name: "Filetti di Merluzzo", qty: "400 g", category: "Surgelati", notes: "" },
+            { name: "Patatine Fritte surgelate", qty: "1 kg", category: "Surgelati", notes: "" },
 
-            { name: "Carta Igienica", qty: "4 rotoli", price: 2.90, category: "Casa", notes: "Scottex" },
-            { name: "Carta Casa / Assorbente", qty: "2 rotoli", price: 2.20, category: "Casa", notes: "" },
-            { name: "Detersivo Lavatrice", qty: "25 lavaggi", price: 5.90, category: "Casa", notes: "" },
-            { name: "Detersivo Piatti", qty: "1 l", price: 1.80, category: "Casa", notes: "" },
-            { name: "Sacchetti Immondizia", qty: "1 rotolo", price: 1.50, category: "Casa", notes: "" },
-            { name: "Spugne per piatti", qty: "3 pz", price: 1.20, category: "Casa", notes: "" },
+            { name: "Carta Igienica", qty: "4 rotoli", category: "Casa", notes: "Scottex" },
+            { name: "Carta Casa / Assorbente", qty: "2 rotoli", category: "Casa", notes: "" },
+            { name: "Detersivo Lavatrice", qty: "25 lavaggi", category: "Casa", notes: "" },
+            { name: "Detersivo Piatti", qty: "1 l", category: "Casa", notes: "" },
+            { name: "Sacchetti Immondizia", qty: "1 rotolo", category: "Casa", notes: "" },
+            { name: "Spugne per piatti", qty: "3 pz", category: "Casa", notes: "" },
 
-            { name: "Latte Senza Lattosio", qty: "1 l", price: 1.49, category: "Senza Lattosio", notes: "Zymil" },
-            { name: "Mozzarella Senza Lattosio", qty: "1 pz", price: 1.80, category: "Senza Lattosio", notes: "" },
-            { name: "Yogurt Senza Lattosio", qty: "2 pz", price: 2.10, category: "Senza Lattosio", notes: "" },
-            { name: "Formaggio Spalmabile Senza Lattosio", qty: "200 g", price: 2.30, category: "Senza Lattosio", notes: "" }
+            { name: "Latte Senza Lattosio", qty: "1 l", category: "Senza Lattosio", notes: "Zymil" },
+            { name: "Mozzarella Senza Lattosio", qty: "1 pz", category: "Senza Lattosio", notes: "" },
+            { name: "Yogurt Senza Lattosio", qty: "2 pz", category: "Senza Lattosio", notes: "" },
+            { name: "Formaggio Spalmabile Senza Lattosio", qty: "200 g", category: "Senza Lattosio", notes: "" }
         ];
 
         let categories = JSON.parse(localStorage.getItem('smart_shopping_categories')) || [
@@ -736,11 +761,11 @@
         ];
 
         let defaultFrequentItems = [
-            { id: 1, name: 'Latte Senza Lattosio', qty: '1 l', price: 1.49, category: 'Senza Lattosio', notes: 'Zymil', count: 12 },
-            { id: 2, name: 'Yogurt Greco', qty: '2 pz', price: 2.20, category: 'Latticini e formaggi', notes: 'Senza lattosio', count: 9 },
-            { id: 3, name: 'Pane in cassetta', qty: '1 conf', price: 1.80, category: 'Colazione e Bibite', notes: '', count: 7 },
-            { id: 4, name: 'Acqua naturale', qty: '6 bottiglie', price: 2.50, category: 'Colazione e Bibite', notes: '', count: 6 },
-            { id: 5, name: 'Carta Igienica', qty: '1 pacco', price: 3.99, category: 'Casa', notes: '', count: 5 }
+            { id: 1, name: 'Latte Senza Lattosio', qty: '1 l', category: 'Senza Lattosio', notes: 'Zymil', count: 12 },
+            { id: 2, name: 'Yogurt Greco', qty: '2 pz', category: 'Latticini e formaggi', notes: 'Senza lattosio', count: 9 },
+            { id: 3, name: 'Pane in cassetta', qty: '1 conf', category: 'Colazione e Bibite', notes: '', count: 7 },
+            { id: 4, name: 'Acqua naturale', qty: '6 bottiglie', category: 'Colazione e Bibite', notes: '', count: 6 },
+            { id: 5, name: 'Carta Igienica', qty: '1 pacco', category: 'Casa', notes: '', count: 5 }
         ];
 
         let state = {
@@ -836,7 +861,7 @@
             }
 
             dropdown.innerHTML = matches.map(m => `
-                <div class="autocomplete-suggestion" onclick="selectDatabaseItem('${escapeHtml(m.name)}', '${escapeHtml(m.qty)}', ${m.price}, '${escapeHtml(m.category)}', '${escapeHtml(m.notes)}')">
+                <div class="autocomplete-suggestion" onclick="selectDatabaseItem('${escapeHtml(m.name)}', '${escapeHtml(m.qty)}', '${escapeHtml(m.category)}', '${escapeHtml(m.notes)}')">
                     <span><strong>${escapeHtml(m.name)}</strong> <small style="color: var(--text-secondary);">(${m.category})</small></span>
                     <span style="color: var(--text-secondary); font-size: 0.8rem;">Seleziona</span>
                 </div>
@@ -844,10 +869,9 @@
             dropdown.style.display = 'block';
         }
 
-        function selectDatabaseItem(name, qty, price, category, notes) {
+        function selectDatabaseItem(name, qty, category, notes) {
             document.getElementById('quick-name').value = name;
             document.getElementById('quick-qty').value = qty;
-            document.getElementById('quick-price').value = price;
             document.getElementById('quick-category').value = category;
             document.getElementById('quick-notes').value = notes;
             document.getElementById('autocomplete-list').style.display = 'none';
@@ -961,7 +985,11 @@
                             <div class="item-title">${escapeHtml(item.name)}</div>
                             <div class="item-meta">
                                 <span class="badge ${item.category === 'Senza Lattosio' ? 'badge-lactose' : ''}">${escapeHtml(item.category)}</span>
-                                ${item.qty ? `<span>📦 ${escapeHtml(item.qty)}</span>` : ''}
+                                <div class="qty-control">
+                                    <button class="qty-btn" onclick="adjustQty(${item.id}, -1)">-</button>
+                                    <span>${item.qty ? escapeHtml(item.qty) : '1 pz'}</span>
+                                    <button class="qty-btn" onclick="adjustQty(${item.id}, 1)">+</button>
+                                </div>
                                 ${item.notes ? `<span>📝 ${escapeHtml(item.notes)}</span>` : ''}
                             </div>
                         </div>
@@ -1018,6 +1046,25 @@
             }
 
             renderDepartmentManagement();
+        }
+
+        function adjustQty(id, delta) {
+            const item = state.items.find(i => i.id === id);
+            if (!item) return;
+
+            let currentQtyStr = item.qty || "1 pz";
+            let match = currentQtyStr.match(/^(\d+)(.*)$/);
+
+            if (match) {
+                let num = parseInt(match[1]) + delta;
+                if (num < 1) num = 1;
+                item.qty = num + match[2];
+            } else {
+                item.qty = "1 pz";
+            }
+
+            saveState();
+            render();
         }
 
         function addOrUpdateActiveItem(newName, newQty, newCategory, newNotes) {
