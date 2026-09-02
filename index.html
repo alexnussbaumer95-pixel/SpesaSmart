@@ -279,7 +279,6 @@
             border-color: var(--accent-color);
         }
 
-        /* Autocomplete dropdown styles */
         .autocomplete-suggestions {
             position: absolute;
             top: 100%;
@@ -531,7 +530,7 @@
                 </div>
                 <div class="row form-group">
                     <input type="text" id="quick-qty" placeholder="Quantità (es. 1 pz / 1 kg)">
-                    <input type="number" id="quick-price" step="0.01" min="0" placeholder="Prezzo €">
+                    <input type="number" id="quick-price" step="0.01" min="0" placeholder="Prezzo € (opzionale)" style="display:none;">
                 </div>
                 <div class="form-group">
                     <select id="quick-category"></select>
@@ -553,12 +552,7 @@
         <div class="filters-container" id="filters-container"></div>
 
         <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <h2 style="margin-bottom: 0;">📋 Lista Attiva</h2>
-                <div id="total-budget-badge" style="background: var(--accent-color); color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">
-                    Tot: €0.00
-                </div>
-            </div>
+            <h2 style="margin-bottom: 12px;">📋 Lista Attiva</h2>
             <ul class="item-list" id="active-list"></ul>
             <div style="display: flex; gap: 8px; margin-top: 16px;">
                 <button class="btn-secondary" onclick="clearCompleted()" style="flex: 1;">🗑️ Elimina spuntati</button>
@@ -580,7 +574,6 @@
                 <select id="freq-sort-by" onchange="render()" style="font-size: 0.9rem; padding: 8px;">
                     <option value="count">Ordina per: Frequenza</option>
                     <option value="name">Ordina per: Nome (A-Z)</option>
-                    <option value="price">Ordina per: Prezzo</option>
                 </select>
             </div>
 
@@ -607,7 +600,7 @@
 
         <div class="card">
             <h2>📜 Storico Spese Passate</h2>
-            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 14px;">Riepilogo delle spese passate salvate al momento dello svuotamento.</p>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 14px;">Riepilogo delle sessioni di spesa completate.</p>
             <div id="history-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
         </div>
 
@@ -664,9 +657,7 @@
     </div>
 
     <script>
-        // DATABASE PRODOTTI DEL SUPERMERCATO PRE-CARICATO
         const supermarketDatabase = [
-            // Frutta e Verdura
             { name: "Mele Golden", qty: "1 kg", price: 2.20, category: "Frutta e Verdura", notes: "" },
             { name: "Banane", qty: "1 kg", price: 1.80, category: "Frutta e Verdura", notes: "" },
             { name: "Pomodori Ciliegino", qty: "500 g", price: 1.99, category: "Frutta e Verdura", notes: "" },
@@ -677,22 +668,19 @@
             { name: "Limoni", qty: "500 g", price: 1.50, category: "Frutta e Verdura", notes: "" },
             { name: "Cipolle", qty: "1 kg", price: 1.40, category: "Frutta e Verdura", notes: "" },
             
-            // Latticini e formaggi
             { name: "Mozzarella Fresca", qty: "3 pz", price: 2.70, category: "Latticini e formaggi", notes: "" },
             { name: "Parmigiano Reggiano DOP", qty: "250 g", price: 4.50, category: "Latticini e formaggi", notes: "Stagionato" },
             { name: "Yogurt Greco", qty: "2 pz", price: 2.20, category: "Latticini e formaggi", notes: "" },
             { name: "Burro", qty: "250 g", price: 2.40, category: "Latticini e formaggi", notes: "" },
-            { name: "Ricotta di Vakku / Vaccina", qty: "250 g", price: 1.60, category: "Latticini e formaggi", notes: "" },
+            { name: "Ricotta Vaccina", qty: "250 g", price: 1.60, category: "Latticini e formaggi", notes: "" },
             { name: "Gouda / Emmental a fette", qty: "1 conf", price: 2.10, category: "Latticini e formaggi", notes: "" },
 
-            // Salumi
             { name: "Prosciutto Cotto Alta Qualità", qty: "100 g", price: 2.50, category: "Salumi", notes: "Banco taglio" },
             { name: "Prosciutto Crudo di Parma", qty: "100 g", price: 3.20, category: "Salumi", notes: "" },
             { name: "Salame Milano", qty: "100 g", price: 2.00, category: "Salumi", notes: "" },
             { name: "Speck dell'Alto Adige", qty: "100 g", price: 2.80, category: "Salumi", notes: "" },
             { name: "Petto di Tacchino arrosto", qty: "100 g", price: 2.20, category: "Salumi", notes: "" },
 
-            // Zucchero e latte (e Dispensa)
             { name: "Latte Parzialmente Scremato", qty: "1 l", price: 1.29, category: "Zucchero e latte", notes: "" },
             { name: "Zucchero Semolato", qty: "1 kg", price: 1.35, category: "Zucchero e latte", notes: "" },
             { name: "Pasta Spaghetti", qty: "500 g", price: 0.95, category: "Zucchero e latte", notes: "Barilla" },
@@ -703,41 +691,36 @@
             { name: "Riso Arborio", qty: "1 kg", price: 2.30, category: "Zucchero e latte", notes: "" },
             { name: "Tonno in Olio d'Oliva", qty: "3x80 g", price: 3.50, category: "Zucchero e latte", notes: "Rio Mare" },
 
-            // Carne
             { name: "Petto di Pollo a fette", qty: "500 g", price: 5.50, category: "Carne", notes: "" },
             { name: "Carne Macinata Mista", qty: "400 g", price: 4.20, category: "Carne", notes: "" },
             { name: "Bistecche di Bovino Adulto", qty: "2 pz", price: 6.90, category: "Carne", notes: "" },
             { name: "Salsiccia di Suino", qty: "4 pz", price: 3.80, category: "Carne", notes: "" },
             { name: "Hamburger di Tacchino/Pollo", qty: "2 pz", price: 2.90, category: "Carne", notes: "" },
 
-            // Colazione e Bibite
             { name: "Caffè macinato", qty: "250 g", price: 3.90, category: "Colazione e Bibite", notes: "Lavazza" },
-            { name: "Acqua Naturale", qty: "6x1.5 l", price: 2.10, category: "Colazione e Bibite", notes: "Levissima / San Benedetto" },
+            { name: "Acqua Naturale", qty: "6x1.5 l", price: 2.10, category: "Colazione e Bibite", notes: "" },
             { name: "Acqua Frizzante", qty: "6x1.5 l", price: 2.10, category: "Colazione e Bibite", notes: "" },
             { name: "Biscotti per Colazione", qty: "400 g", price: 2.50, category: "Colazione e Bibite", notes: "Mulino Bianco" },
             { name: "Fette Biscottate", qty: "1 conf", price: 1.70, category: "Colazione e Bibite", notes: "" },
             { name: "Cereali Muesli / Corn Flakes", qty: "375 g", price: 2.60, category: "Colazione e Bibite", notes: "" },
             { name: "Coca Cola / Bibita gassata", qty: "1.5 l", price: 2.00, category: "Colazione e Bibite", notes: "" },
 
-            // Surgelati
-            { name: "Pizza Surgelata Margherita", qty: "2 pz", price: 3.80, category: "Surgelati", notes: "Buitoni / Italpizza" },
+            { name: "Pizza Surgelata Margherita", qty: "2 pz", price: 3.80, category: "Surgelati", notes: "" },
             { name: "Spinaci Surgelati a cubetti", qty: "600 g", price: 1.80, category: "Surgelati", notes: "" },
             { name: "Filetti di Merluzzo", qty: "400 g", price: 4.50, category: "Surgelati", notes: "" },
             { name: "Patatine Fritte surgelate", qty: "1 kg", price: 2.50, category: "Surgelati", notes: "" },
 
-            // Casa
             { name: "Carta Igienica", qty: "4 rotoli", price: 2.90, category: "Casa", notes: "Scottex" },
             { name: "Carta Casa / Assorbente", qty: "2 rotoli", price: 2.20, category: "Casa", notes: "" },
-            { name: "Detersivo Lavatrice", qty: "25 lavaggi", price: 5.90, category: "Casa", notes: "Dash / Dixan" },
-            { name: "Detersivo Piatti", qty: "1 l", price: 1.80, category: "Casa", notes: "Svelto" },
-            { name: "Sacchetti Immondizia con manici", qty: "1 rotolo", price: 1.50, category: "Casa", notes: "" },
+            { name: "Detersivo Lavatrice", qty: "25 lavaggi", price: 5.90, category: "Casa", notes: "" },
+            { name: "Detersivo Piatti", qty: "1 l", price: 1.80, category: "Casa", notes: "" },
+            { name: "Sacchetti Immondizia", qty: "1 rotolo", price: 1.50, category: "Casa", notes: "" },
             { name: "Spugne per piatti", qty: "3 pz", price: 1.20, category: "Casa", notes: "" },
 
-            // Senza Lattosio
             { name: "Latte Senza Lattosio", qty: "1 l", price: 1.49, category: "Senza Lattosio", notes: "Zymil" },
-            { name: "Mozzarella Senza Lattosio", qty: "1 pz", price: 1.80, category: "Senza Lattosio", notes: "Zymil / Granarolo" },
+            { name: "Mozzarella Senza Lattosio", qty: "1 pz", price: 1.80, category: "Senza Lattosio", notes: "" },
             { name: "Yogurt Senza Lattosio", qty: "2 pz", price: 2.10, category: "Senza Lattosio", notes: "" },
-            { name: "Formaggio Spalmabile Senza Lattosio", qty: "200 g", price: 2.30, category: "Senza Lattosio", notes: "Philadelphia" }
+            { name: "Formaggio Spalmabile Senza Lattosio", qty: "200 g", price: 2.30, category: "Senza Lattosio", notes: "" }
         ];
 
         let categories = JSON.parse(localStorage.getItem('smart_shopping_categories')) || [
@@ -837,7 +820,6 @@
             closeModal();
         };
 
-        // GESTIONE AUTOCOMPLETAMENTO DATABASE SUPERMERCATO
         function handleSearchInput(query) {
             const dropdown = document.getElementById('autocomplete-list');
             if (!query || query.trim().length === 0) {
@@ -856,7 +838,7 @@
             dropdown.innerHTML = matches.map(m => `
                 <div class="autocomplete-suggestion" onclick="selectDatabaseItem('${escapeHtml(m.name)}', '${escapeHtml(m.qty)}', ${m.price}, '${escapeHtml(m.category)}', '${escapeHtml(m.notes)}')">
                     <span><strong>${escapeHtml(m.name)}</strong> <small style="color: var(--text-secondary);">(${m.category})</small></span>
-                    <span style="color: var(--success-color); font-weight: 600;">€${m.price.toFixed(2)}</span>
+                    <span style="color: var(--text-secondary); font-size: 0.8rem;">Seleziona</span>
                 </div>
             `).join('');
             dropdown.style.display = 'block';
@@ -871,7 +853,6 @@
             document.getElementById('autocomplete-list').style.display = 'none';
         }
 
-        // Chiudi il menu a tendina se si clicca fuori
         window.addEventListener('click', function(e) {
             if (!document.getElementById('quick-name').contains(e.target) && !document.getElementById('autocomplete-list').contains(e.target)) {
                 document.getElementById('autocomplete-list').style.display = 'none';
@@ -888,16 +869,12 @@
             const newQty = prompt("Modifica Quantità:", freq.qty || "");
             if (newQty === null) return;
             
-            const newPriceStr = prompt("Modifica Prezzo (€):", freq.price !== undefined ? freq.price : "");
-            if (newPriceStr === null) return;
-            
             const newNotes = prompt("Modifica Note:", freq.notes || "");
             if (newNotes === null) return;
 
             if (newName.trim()) {
                 freq.name = newName.trim();
                 freq.qty = newQty.trim();
-                freq.price = newPriceStr !== "" ? parseFloat(newPriceStr) || 0 : 0;
                 freq.notes = newNotes.trim();
                 
                 saveState();
@@ -964,7 +941,6 @@
             const activeList = document.getElementById('active-list');
             const frequentList = document.getElementById('frequent-list');
             const historyList = document.getElementById('history-list');
-            const budgetBadge = document.getElementById('total-budget-badge');
             if (!activeList || !frequentList) return;
 
             updateNavBadge();
@@ -974,11 +950,6 @@
                 : state.items.filter(i => i.category === state.currentFilter);
 
             filtered.sort((a, b) => a.completed - b.completed);
-
-            let activeTotal = state.items.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
-            if (budgetBadge) {
-                budgetBadge.textContent = `Tot: €${activeTotal.toFixed(2)}`;
-            }
 
             if (filtered.length === 0) {
                 activeList.innerHTML = '<div class="empty-state">Nessun articolo in questa sezione.</div>';
@@ -991,7 +962,6 @@
                             <div class="item-meta">
                                 <span class="badge ${item.category === 'Senza Lattosio' ? 'badge-lactose' : ''}">${escapeHtml(item.category)}</span>
                                 ${item.qty ? `<span>📦 ${escapeHtml(item.qty)}</span>` : ''}
-                                ${item.price ? `<span style="color: var(--success-color); font-weight: 600;">💶 €${parseFloat(item.price).toFixed(2)}</span>` : ''}
                                 ${item.notes ? `<span>📝 ${escapeHtml(item.notes)}</span>` : ''}
                             </div>
                         </div>
@@ -1012,8 +982,6 @@
                 sortedFreq.sort((a, b) => b.count - a.count);
             } else if (freqSortBy === 'name') {
                 sortedFreq.sort((a, b) => a.name.localeCompare(b.name));
-            } else if (freqSortBy === 'price') {
-                sortedFreq.sort((a, b) => (a.price || 0) - (b.price || 0));
             }
 
             if (sortedFreq.length === 0) {
@@ -1023,7 +991,7 @@
                     <div class="frequent-item">
                         <div>
                             <strong>${escapeHtml(freq.name)}</strong>
-                            <div style="font-size: 0.75rem; color: var(--text-secondary);">${escapeHtml(freq.category)} ${freq.qty ? '• ' + escapeHtml(freq.qty) : ''} ${freq.price ? '• €' + parseFloat(freq.price).toFixed(2) : ''}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">${escapeHtml(freq.category)} ${freq.qty ? '• ' + escapeHtml(freq.qty) : ''}</div>
                         </div>
                         <div style="display: flex; gap: 6px;">
                             <button type="button" onclick="addFrequent(${freq.id})" style="padding: 6px 10px; font-size: 0.8rem;">➕ Aggiungi</button>
@@ -1042,9 +1010,8 @@
                         <div style="background: var(--bg-color); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
                             <div>
                                 <strong style="font-size: 0.9rem;">📅 ${hist.date}</strong>
-                                <div style="font-size: 0.75rem; color: var(--text-secondary);">${hist.itemsCount} articoli acquistati</div>
                             </div>
-                            <div style="font-weight: 600; color: var(--success-color);">€${hist.total.toFixed(2)}</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">${hist.itemsCount} articoli</div>
                         </div>
                     `).join('');
                 }
@@ -1053,12 +1020,10 @@
             renderDepartmentManagement();
         }
 
-        function addOrUpdateActiveItem(newName, newQty, newPrice, newCategory, newNotes) {
+        function addOrUpdateActiveItem(newName, newQty, newCategory, newNotes) {
             const existingItem = state.items.find(i => i.name.toLowerCase() === newName.toLowerCase() && i.category === newCategory);
 
             if (existingItem) {
-                existingItem.price = (parseFloat(existingItem.price) || 0) + (parseFloat(newPrice) || 0);
-
                 if (newQty) {
                     if (existingItem.qty) {
                         const matchOld = existingItem.qty.match(/^(\d+)(.*)$/);
@@ -1082,7 +1047,6 @@
                     id: Date.now(),
                     name: newName,
                     qty: newQty || '',
-                    price: parseFloat(newPrice) || 0,
                     category: newCategory,
                     notes: newNotes || '',
                     completed: false
@@ -1094,33 +1058,29 @@
             e.preventDefault();
             const name = document.getElementById('quick-name').value.trim();
             const qty = document.getElementById('quick-qty').value.trim();
-            const priceVal = document.getElementById('quick-price').value;
-            const price = priceVal ? parseFloat(priceVal) : 0;
             const category = document.getElementById('quick-category').value;
             const notes = document.getElementById('quick-notes').value.trim();
             const isRecurring = document.getElementById('quick-recurring').checked;
 
             if (!name) return;
 
-            addOrUpdateActiveItem(name, qty, price, category, notes);
+            addOrUpdateActiveItem(name, qty, category, notes);
 
             if (isRecurring) {
                 const existing = state.frequent.find(f => f.name.toLowerCase() === name.toLowerCase());
                 if (existing) {
                     existing.count++;
                     existing.qty = qty || existing.qty;
-                    existing.price = price || existing.price;
                     existing.category = category;
                     existing.notes = notes || existing.notes;
                 } else {
-                    state.frequent.push({ id: Date.now() + 1, name, qty, price, category, notes, count: 1 });
+                    state.frequent.push({ id: Date.now() + 1, name, qty, category, notes, count: 1 });
                 }
             }
 
             saveState();
             document.getElementById('quick-name').value = '';
             document.getElementById('quick-qty').value = '';
-            document.getElementById('quick-price').value = '';
             document.getElementById('quick-notes').value = '';
             document.getElementById('quick-recurring').checked = true;
             
@@ -1155,14 +1115,12 @@
         }
 
         function clearAll() {
-            showConfirmModal("Svuota Lista", "Vuoi svuotare tutta la lista attiva? (I dati verranno salvati nello storico spese)", () => {
+            showConfirmModal("Svuota Lista", "Vuoi svuotare tutta la lista attiva? (I dati verranno salvati nello storico)", () => {
                 if (state.items.length > 0) {
-                    let totalSpent = state.items.reduce((acc, i) => acc + (parseFloat(i.price) || 0), 0);
                     let nowStr = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                     state.history.unshift({
                         date: nowStr,
-                        itemsCount: state.items.length,
-                        total: totalSpent
+                        itemsCount: state.items.length
                     });
                     if (state.history.length > 10) state.history.pop();
                 }
@@ -1275,7 +1233,6 @@
             addOrUpdateActiveItem(
                 freq.name, 
                 addQtyPrompt.trim(), 
-                freq.price || 0, 
                 freq.category || categories[0]?.name || 'Colazione e Bibite', 
                 freq.notes || ''
             );
