@@ -38,7 +38,7 @@
             if (unsubscribe) unsubscribe();
 
             unsubscribe = onSnapshot(docRef, (docSnap) => {
-                const currentDataVersion = "v3_nussbaumer_trisi";
+                const currentDataVersion = "v4_nussbaumer_trisi_scontrini";
                 const localVersion = localStorage.getItem('smart_shopping_version');
 
                 if (docSnap.exists() && localVersion === currentDataVersion) {
@@ -57,7 +57,6 @@
                     saveLocalState();
                     render();
                 } else {
-                    // Forza il caricamento delle nuove categorie e dei prodotti frequenti aggiornati sul cloud
                     categories = defaultCategories;
                     state.frequent = defaultFrequentItems;
                     localStorage.setItem('smart_shopping_version', currentDataVersion);
@@ -749,98 +748,119 @@
     <script>
         const supermarketDatabase = [
             // Frutta e Verdura
-            { name: "Mele Golden", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🍎" },
-            { name: "Banane", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🍌" },
-            { name: "Pomodori Ciliegino", qty: "500 g", category: "Frutta e Verdura", notes: "", img: "🍅" },
+            { name: "Cipolla Rossa", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🧅" },
             { name: "Pomodori Datterini", qty: "500 g", category: "Frutta e Verdura", notes: "", img: "🍅" },
-            { name: "Avocado", qty: "2 pz", category: "Frutta e Verdura", notes: "", img: "🥑" },
-            { name: "Insalata Indivia / Iceberg", qty: "1 pz", category: "Frutta e Verdura", notes: "", img: "🥗" },
             { name: "Zucchine", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🥒" },
+            { name: "Melanzane", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🍆" },
+            { name: "Funghi Finferli", qty: "300 g", category: "Frutta e Verdura", notes: "", img: "🍄" },
+            { name: "Barbabietole Rosse", qty: "1 pz", category: "Frutta e Verdura", notes: "", img: "🥔" },
+            { name: "Ananas Gold", qty: "1 pz", category: "Frutta e Verdura", notes: "", img: "🍍" },
+            { name: "Avocados", qty: "2 pz", category: "Frutta e Verdura", notes: "", img: "🥑" },
+            { name: "Sedano Verde", qty: "1 pz", category: "Frutta e Verdura", notes: "", img: "🌿" },
+            { name: "Banane", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🍌" },
             { name: "Carote", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🥕" },
-            { name: "Patate", qty: "2 kg", category: "Frutta e Verdura", notes: "", img: "🥔" },
+            { name: "Patate Pasta Gialla", qty: "2 kg", category: "Frutta e Verdura", notes: "", img: "🥔" },
+            { name: "Basilico Vaso", qty: "1 pz", category: "Frutta e Verdura", notes: "", img: "🌿" },
+            { name: "Cetrioli Carosello", qty: "500 g", category: "Frutta e Verdura", notes: "", img: "🥒" },
+            { name: "Fragole", qty: "500 g", category: "Frutta e Verdura", notes: "", img: "🍓" },
+            { name: "Mele Golden", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🍎" },
             { name: "Limoni", qty: "500 g", category: "Frutta e Verdura", notes: "", img: "🍋" },
-            { name: "Cipolle", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🧅" },
 
             // Uova
-            { name: "Uova Fresche Biologiche", qty: "6 pz", category: "Uova", notes: "", img: "🥚" },
-            { name: "Uova da Allevamento a Terra", qty: "10 pz", category: "Uova", notes: "", img: "🥚" },
+            { name: "Uova Media Primia", qty: "6 pz", category: "Uova", notes: "", img: "🥚" },
+            { name: "Albume d'Uovo Primia", qty: "500 g", category: "Uova", notes: "", img: "🥚" },
 
             // Latticini e formaggi
-            { name: "Mozzarella Fresca", qty: "3 pz", category: "Latticini e formaggi", notes: "", img: "🧀" },
-            { name: "Yogurt", qty: "2 pz", category: "Latticini e formaggi", notes: "", img: "🥛" },
-            { name: "Yogurt Greco", qty: "2 pz", category: "Latticini e formaggi", notes: "", img: "🥛" },
-            { name: "Kefir", qty: "500 ml", category: "Latticini e formaggi", notes: "", img: "🥛" },
-            { name: "Ricotta Vaccina", qty: "250 g", category: "Latticini e formaggi", notes: "", img: "🧀" },
-            { name: "Parmigiano Reggiano DOP", qty: "250 g", category: "Latticini e formaggi", notes: "Stagionato", img: "🧀" },
-            { name: "Burro", qty: "250 g", category: "Latticini e formaggi", notes: "", img: "🧈" },
-            { name: "Gouda / Emmental a fette", qty: "1 conf", category: "Latticini e formaggi", notes: "", img: "🥪" },
-
-            // Senza Lattosio
-            { name: "Latte Senza Lattosio", qty: "1 l", category: "Senza Lattosio", notes: "Zymil", img: "🥛" },
+            { name: "Philadelphia Senza Lattosio", qty: "200 g", category: "Senza Lattosio", notes: "", img: "🧀" },
             { name: "Mozzarella Senza Lattosio", qty: "1 pz", category: "Senza Lattosio", notes: "", img: "🧀" },
-            { name: "Yogurt Senza Lattosio", qty: "2 pz", category: "Senza Lattosio", notes: "", img: "🥛" },
-            { name: "Formaggio Spalmabile Senza Lattosio", qty: "200 g", category: "Senza Lattosio", notes: "", img: "🧀" },
+            { name: "Certosa Galbani", qty: "165 g", category: "Latticini e formaggi", notes: "", img: "🧀" },
+            { name: "G+G Yogurt Mila", qty: "150 g", category: "Latticini e formaggi", notes: "Vari gusti (Cocco, Vaniglia, Mandorla, Pera/Noci)", img: "🥛" },
+            { name: "Kefir Milk / Mousse / Bere", qty: "500 ml", category: "Latticini e formaggi", notes: "", img: "🥛" },
+            { name: "Burro Primia", qty: "250 g", category: "Latticini e formaggi", notes: "", img: "🧈" },
+            { name: "Zorbas Feta Greca", qty: "200 g", category: "Latticini e formaggi", notes: "", img: "🧀" },
+            { name: "Formaggio Camoscio d'Oro", qty: "200 g", category: "Latticini e formaggi", notes: "", img: "🧀" },
+            { name: "Panna Montata Meggle", qty: "250 ml", category: "Latticini e formaggi", notes: "", img: "🥛" },
+            { name: "Yogurt Mila Gusto+Gusto", qty: "125 g", category: "Latticini e formaggi", notes: "", img: "🥛" },
 
             // Salumi
-            { name: "Prosciutto Cotto Alta Qualità", qty: "100 g", category: "Salumi", notes: "Banco taglio", img: "🍖" },
-            { name: "Prosciutto Crudo di Parma", qty: "100 g", category: "Salumi", notes: "", img: "🍖" },
-            { name: "Salame Milano", qty: "100 g", category: "Salumi", notes: "", img: "🥓" },
-            { name: "Speck dell'Alto Adige", qty: "100 g", category: "Salumi", notes: "", img: "🥩" },
-            { name: "Petto di Tacchino arrosto", qty: "100 g", category: "Salumi", notes: "", img: "🍗" },
+            { name: "Salsiccia Piccola / Grill", qty: "250 g", category: "Salumi", notes: "", img: "🌭" },
+            { name: "S/G Tacchino Aeq / Tacchino For", qty: "100 g", category: "Salumi", notes: "", img: "🍗" },
+            { name: "Tyrolini Handl", qty: "80 g", category: "Salumi", notes: "", img: "🥩" },
+            { name: "G/G Salami Drops", qty: "100 g", category: "Salumi", notes: "", img: "🥓" },
+            { name: "Mortadella Primia", qty: "100 g", category: "Salumi", notes: "", img: "🍖" },
+            { name: "Fesa di Tacchino", qty: "100 g", category: "Salumi", notes: "", img: "🍗" },
+            { name: "S/G Petto Pollo AIA", qty: "100 g", category: "Salumi", notes: "", img: "🍗" },
 
-            // Dispensa (Pasta, Riso, Farina, Olio, Passata, Scatolame)
-            { name: "Pasta Spaghetti", qty: "500 g", category: "Dispensa", notes: "Barilla", img: "🍝" },
-            { name: "Pasta Penne Rigate", qty: "500 g", category: "Dispensa", notes: "Barilla", img: "🍝" },
-            { name: "Passata di Pomodoro", qty: "700 g", category: "Dispensa", notes: "Mutti", img: "🥫" },
-            { name: "Olio Extravergine d'Oliva", qty: "1 l", category: "Dispensa", notes: "", img: "🍾" },
-            { name: "Farina di Tipo 00", qty: "1 kg", category: "Dispensa", notes: "", img: "🌾" },
-            { name: "Riso Arborio", qty: "1 kg", category: "Dispensa", notes: "", img: "🍚" },
-            { name: "Tonno in Olio d'Oliva", qty: "3x80 g", category: "Dispensa", notes: "Rio Mare", img: "🐟" },
-            { name: "Zucchero Semolato", qty: "1 kg", category: "Dispensa", notes: "", img: "🧂" },
+            // Dispensa (Pasta, Riso, Farina, Olio, Passata, Scatolame, Condimenti)
+            { name: "Passata Petti", qty: "700 g", category: "Dispensa", notes: "", img: "🥫" },
+            { name: "P/Sfoglia Primia / Sfoglia Primia", qty: "1 pz", category: "Dispensa", notes: "", img: "🥮" },
+            { name: "Farro Soffiato Colfi", qty: "250 g", category: "Dispensa", notes: "", img: "🌾" },
+            { name: "Fiocchi Riso Frum.In", qty: "300 g", category: "Dispensa", notes: "", img: "🥣" },
+            { name: "Primia Piadine R", qty: "3 pz", category: "Dispensa", notes: "", img: "🫓" },
+            { name: "Farina Farro Rieper", qty: "1 kg", category: "Dispensa", notes: "", img: "🌾" },
+            { name: "Farina Bianca Rieper", qty: "1 kg", category: "Dispensa", notes: "", img: "🌾" },
+            { name: "Zucchero a Velo", qty: "125 g", category: "Dispensa", notes: "", img: "🧂" },
+            { name: "Paine Bianco M/B", qty: "1 pz", category: "Dispensa", notes: "", img: "🍞" },
+            { name: "Pasta Lucanica Belli", qty: "300 g", category: "Dispensa", notes: "", img: "🍝" },
+            { name: "Baguettes D/Bread", qty: "2 pz", category: "Dispensa", notes: "", img: "🥖" },
+            { name: "Maionese Primia", qty: "200 ml", category: "Dispensa", notes: "", img: "🥚" },
+            { name: "Ketchup Heinz Squeez", qty: "400 g", category: "Dispensa", notes: "", img: "🍅" },
+            { name: "Sale Grosso", qty: "1 kg", category: "Dispensa", notes: "", img: "🧂" },
+            { name: "American Sandwich", qty: "1 pz", category: "Dispensa", notes: "", img: "🥪" },
+            { name: "Glassa Balsamica Ponti", qty: "250 ml", category: "Dispensa", notes: "", img: "🍾" },
+            { name: "Citres Pomodori Secchi", qty: "280 g", category: "Dispensa", notes: "", img: "🍅" },
 
             // Carne
-            { name: "Petto di Pollo a fette", qty: "500 g", category: "Carne", notes: "", img: "🍗" },
-            { name: "Petto di Tacchino", qty: "500 g", category: "Carne", notes: "", img: "🍗" },
-            { name: "Carne Macinata Mista", qty: "400 g", category: "Carne", notes: "", img: "🥩" },
-            { name: "Bistecche di Bovino Adulto", qty: "2 pz", category: "Carne", notes: "", img: "🥩" },
-            { name: "Salsiccia di Suino", qty: "4 pz", category: "Carne", notes: "", img: "🌭" },
-            { name: "Hamburger di Tacchino/Pollo", qty: "2 pz", category: "Carne", notes: "", img: "🍔" },
+            { name: "S/G Tacchino", qty: "500 g", category: "Carne", notes: "", img: "🍗" },
+            { name: "Primia Maxi Hamburger", qty: "2 pz", category: "Carne", notes: "", img: "🍔" },
+            { name: "Macinato Bov/Sui", qty: "400 g", category: "Carne", notes: "", img: "🥩" },
+            { name: "Hamburger Party", qty: "4 pz", category: "Carne", notes: "", img: "🍔" },
+            { name: "Macinato di Bovino", qty: "400 g", category: "Carne", notes: "", img: "🥩" },
+            { name: "Fette di Bovino", qty: "400 g", category: "Carne", notes: "", img: "🥩" },
+            { name: "Kebab Pollo Doner", qty: "400 g", category: "Carne", notes: "", img: "🍗" },
 
             // Colazione e Bibite
-            { name: "Caffè macinato", qty: "250 g", category: "Colazione e Bibite", notes: "Lavazza", img: "☕" },
-            { name: "Acqua Naturale", qty: "6x1.5 l", category: "Colazione e Bibite", notes: "", img: "💧" },
-            { name: "Acqua Frizzante", qty: "6x1.5 l", category: "Colazione e Bibite", notes: "", img: "🫧" },
-            { name: "Biscotti per Colazione", qty: "400 g", category: "Colazione e Bibite", notes: "", img: "🍪" },
-            { name: "Fette Biscottate", qty: "1 conf", category: "Colazione e Bibite", notes: "", img: "🍞" },
-            { name: "Cereali Muesli / Corn Flakes", qty: "375 g", category: "Colazione e Bibite", notes: "", img: "🥣" },
-            { name: "Coca Cola / Bibita gassata", qty: "1.5 l", category: "Colazione e Bibite", notes: "", img: "🥤" },
-            { name: "Prosecco", qty: "1 pz", category: "Colazione e Bibite", notes: "", img: "🍾" },
-            { name: "Red Bull", qty: "1 pz", category: "Colazione e Bibite", notes: "", img: "⚡" },
+            { name: "Campari Bitter", qty: "700 ml", category: "Colazione e Bibite", notes: "", img: "🍹" },
+            { name: "Nettare Pera Yoga", qty: "3x200 ml", category: "Colazione e Bibite", notes: "", img: "🧃" },
+            { name: "S/G Succo S.Benedetto", qty: "1 l", category: "Colazione e Bibite", notes: "", img: "🧃" },
+            { name: "Birra Non Filtrata Ichnusa", qty: "50 cl", category: "Colazione e Bibite", notes: "", img: "🍺" },
+            { name: "Red Bull", qty: "250 ml", category: "Colazione e Bibite", notes: "", img: "⚡" },
+            { name: "Birra Beck's", qty: "33 cl", category: "Colazione e Bibite", notes: "", img: "🍺" },
+            { name: "Martini Vermouth Bianco", qty: "1 l", category: "Colazione e Bibite", notes: "", img: "🍸" },
+            { name: "Prosecco Col Solivo", qty: "750 ml", category: "Colazione e Bibite", notes: "", img: "🍾" },
+            { name: "Birra Note Melograno", qty: "33 cl", category: "Colazione e Bibite", notes: "", img: "🍺" },
+            { name: "Latte UHT Primia", qty: "1 l", category: "Colazione e Bibite", notes: "", img: "🥛" },
+            { name: "Fette Biscottate M/Bianco", qty: "300 g", category: "Colazione e Bibite", notes: "", img: "🍞" },
+            { name: "Confettura Frutti di Bosco", qty: "350 g", category: "Colazione e Bibite", notes: "", img: "🍓" },
+            { name: "Choco Shells T1", qty: "375 g", category: "Colazione e Bibite", notes: "", img: "🥣" },
+            { name: "Coca Cola Zero", qty: "1.5 l", category: "Colazione e Bibite", notes: "", img: "🥤" },
+            { name: "Birra Dreher", qty: "33 cl", category: "Colazione e Bibite", notes: "", img: "🍺" },
 
             // Snack e Dolci
-            { name: "Cioccolato Fondente", qty: "100 g", category: "Snack e Dolci", notes: "", img: "🍫" },
-            { name: "Patatine in sacchetto", qty: "150 g", category: "Snack e Dolci", notes: "", img: "🍟" },
-            { name: "Caramelle / Snack dolci", qty: "1 conf", category: "Snack e Dolci", notes: "", img: "🍬" },
+            { name: "Frollini Mandorla / Cioccodi' / Nocciola", qty: "400 g", category: "Snack e Dolci", notes: "", img: "🍪" },
+            { name: "Pistacchio Tostato", qty: "100 g", category: "Snack e Dolci", notes: "", img: "🥜" },
+            { name: "Oreo Doppia Crema", qty: "157 g", category: "Snack e Dolci", notes: "", img: "🍪" },
+            { name: "Cioccol. Ritter Sport", qty: "100 g", category: "Snack e Dolci", notes: "", img: "🍫" },
+            { name: "Fiore Cranciotti Ketchup", qty: "150 g", category: "Snack e Dolci", notes: "", img: "🍟" },
+            { name: "Puglia Taralli / Fiore Taralli", qty: "300 g", category: "Snack e Dolci", notes: "", img: "🥨" },
+            { name: "Caramelle Zirele / Sperlari", qty: "150 g", category: "Snack e Dolci", notes: "", img: "🍬" },
 
             // Surgelati
-            { name: "Pizza Surgelata Margherita", qty: "2 pz", category: "Surgelati", notes: "", img: "🍕" },
-            { name: "Spinaci Surgelati a cubetti", qty: "600 g", category: "Surgelati", notes: "", img: "🥬" },
-            { name: "Filetti di Merluzzo", qty: "400 g", category: "Surgelati", notes: "", img: "🐟" },
-            { name: "Patatine Fritte surgelate", qty: "1 kg", category: "Surgelati", notes: "", img: "🍟" },
+            { name: "Gamberetti Primia", qty: "300 g", category: "Surgelati", notes: "", img: "🦐" },
+            { name: "Ravioli Ricotta/Spinaci", qty: "250 g", category: "Surgelati", notes: "", img: "🥟" },
+            { name: "Lasagne Sfogliavelo", qty: "300 g", category: "Surgelati", notes: "", img: "🍝" },
+            { name: "Pinsa Ambient Piccin", qty: "230 g", category: "Surgelati", notes: "", img: "🍕" },
+            { name: "Trancio Pizza Salami", qty: "300 g", category: "Surgelati", notes: "", img: "🍕" },
+            { name: "Filetti Primia (Merluzzo/Nasello)", qty: "400 g", category: "Surgelati", notes: "", img: "🐟" },
 
             // Igiene Personale
-            { name: "Bagnoschiuma", qty: "1 pz", category: "Igiene Personale", notes: "", img: "🧼" },
-            { name: "Shampoo", qty: "1 pz", category: "Igiene Personale", notes: "", img: "🧴" },
-            { name: "Dentifricio", qty: "1 pz", category: "Igiene Personale", notes: "", img: "🦷" },
+            { name: "Assorbenti Lines", qty: "1 conf", category: "Igiene Personale", notes: "", img: "🛡️" },
 
             // Casa
-            { name: "Carta Igienica", qty: "4 rotoli", category: "Casa", notes: "Scottex", img: "🧻" },
-            { name: "Carta Casa / Assorbente", qty: "2 rotoli", category: "Casa", notes: "", img: "🧻" },
-            { name: "Detersivo Lavatrice", qty: "25 lavaggi", category: "Casa", notes: "", img: "🧴" },
-            { name: "Detersivo Piatti", qty: "1 l", category: "Casa", notes: "", img: "🧼" },
-            { name: "Sacchetti Immondizia", qty: "1 rotolo", category: "Casa", notes: "", img: "🗑️" },
-            { name: "Spugne per piatti", qty: "3 pz", category: "Casa", notes: "", img: "🧽" },
-            { name: "Accessori in acciaio", qty: "1 pz", category: "Casa", notes: "", img: "✨" }
+            { name: "Pinze in Acciaio", qty: "1 pz", category: "Casa", notes: "", img: "✨" },
+            { name: "Deo Lavas Finish", qty: "1 pz", category: "Casa", notes: "", img: "🧼" },
+            { name: "Cura Lav Finish", qty: "250 ml", category: "Casa", notes: "", img: "🧴" },
+            { name: "Primia Brillantante", qty: "500 ml", category: "Casa", notes: "", img: "✨" }
         ];
 
         const defaultCategories = [
@@ -863,15 +883,15 @@
         let defaultFrequentItems = [
             { id: 1, name: 'Latte Senza Lattosio', qty: '1 l', category: 'Senza Lattosio', notes: 'Zymil', count: 12, img: '🥛' },
             { id: 2, name: 'Yogurt Greco', qty: '2 pz', category: 'Latticini e formaggi', notes: 'Senza lattosio', count: 9, img: '🥛' },
-            { id: 3, name: 'Kefir', qty: '500 ml', category: 'Latticini e formaggi', notes: '', count: 8, img: '🥛' },
+            { id: 3, name: 'Kefir Milk / Mousse / Bere', qty: '500 ml', category: 'Latticini e formaggi', notes: '', count: 8, img: '🥛' },
             { id: 4, name: 'Ricotta Vaccina', qty: '250 g', category: 'Latticini e formaggi', notes: '', count: 8, img: '🧀' },
             { id: 5, name: 'Mozzarella Senza Lattosio', qty: '1 pz', category: 'Senza Lattosio', notes: '', count: 7, img: '🧀' },
             { id: 6, name: 'Pomodori Datterini', qty: '500 g', category: 'Frutta e Verdura', notes: '', count: 7, img: '🍅' },
-            { id: 7, name: 'Avocado', qty: '2 pz', category: 'Frutta e Verdura', notes: '', count: 6, img: '🥑' },
+            { id: 7, name: 'Avocados', qty: '2 pz', category: 'Frutta e Verdura', notes: '', count: 6, img: '🥑' },
             { id: 8, name: 'Petto di Tacchino', qty: '500 g', category: 'Carne', notes: '', count: 6, img: '🍗' },
             { id: 9, name: 'Carne Macinata Mista', qty: '400 g', category: 'Carne', notes: '', count: 6, img: '🥩' },
-            { id: 10, name: 'Prosecco', qty: '1 pz', category: 'Colazione e Bibite', notes: '', count: 5, img: '🍾' },
-            { id: 11, name: 'Red Bull', qty: '1 pz', category: 'Colazione e Bibite', notes: '', count: 5, img: '⚡' },
+            { id: 10, name: 'Prosecco Col Solivo', qty: '750 ml', category: 'Colazione e Bibite', notes: '', count: 5, img: '🍾' },
+            { id: 11, name: 'Red Bull', qty: '250 ml', category: 'Colazione e Bibite', notes: '', count: 5, img: '⚡' },
             { id: 12, name: 'Carta Igienica', qty: '1 pacco', category: 'Casa', notes: '', count: 5, img: '🧻' }
         ];
 
@@ -880,8 +900,8 @@
                 id: 101,
                 title: "Schlutzkrapfen (Ravioli tirolesi)",
                 ingredients: [
-                    { name: "Farina di Tipo 00", qty: "250 g", category: "Dispensa", img: "🌾" },
-                    { name: "Burro", qty: "100 g", category: "Latticini e formaggi", img: "🧈" },
+                    { name: "Farina Bianca Rieper", qty: "250 g", category: "Dispensa", img: "🌾" },
+                    { name: "Burro Primia", qty: "100 g", category: "Latticini e formaggi", img: "🧈" },
                     { name: "Ricotta Vaccina", qty: "200 g", category: "Latticini e formaggi", img: "🧀" },
                     { name: "Spinaci Surgelati a cubetti", qty: "300 g", category: "Surgelati", img: "🥬" }
                 ]
