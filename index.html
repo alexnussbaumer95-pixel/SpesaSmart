@@ -737,6 +737,7 @@
 
     <script>
         const supermarketDatabase = [
+            // Frutta e Verdura
             { name: "Mele Golden", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🍎" },
             { name: "Banane", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🍌" },
             { name: "Pomodori Ciliegino", qty: "500 g", category: "Frutta e Verdura", notes: "", img: "🍅" },
@@ -748,36 +749,45 @@
             { name: "Patate", qty: "2 kg", category: "Frutta e Verdura", notes: "", img: "🥔" },
             { name: "Limoni", qty: "500 g", category: "Frutta e Verdura", notes: "", img: "🍋" },
             { name: "Cipolle", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🧅" },
-            
+
+            // Uova
+            { name: "Uova Fresche Biologiche", qty: "6 pz", category: "Uova", notes: "", img: "🥚" },
+            { name: "Uova da Allevamento a Terra", qty: "10 pz", category: "Uova", notes: "", img: "🥚" },
+
+            // Latticini e formaggi
             { name: "Mozzarella Fresca", qty: "3 pz", category: "Latticini e formaggi", notes: "", img: "🧀" },
-            { name: "Mozzarella Senza Lattosio", qty: "1 pz", category: "Senza Lattosio", notes: "", img: "🧀" },
             { name: "Yogurt", qty: "2 pz", category: "Latticini e formaggi", notes: "", img: "🥛" },
             { name: "Yogurt Greco", qty: "2 pz", category: "Latticini e formaggi", notes: "", img: "🥛" },
-            { name: "Yogurt Senza Lattosio", qty: "2 pz", category: "Senza Lattosio", notes: "", img: "🥛" },
             { name: "Kefir", qty: "500 ml", category: "Latticini e formaggi", notes: "", img: "🥛" },
             { name: "Ricotta Vaccina", qty: "250 g", category: "Latticini e formaggi", notes: "", img: "🧀" },
             { name: "Parmigiano Reggiano DOP", qty: "250 g", category: "Latticini e formaggi", notes: "Stagionato", img: "🧀" },
             { name: "Burro", qty: "250 g", category: "Latticini e formaggi", notes: "", img: "🧈" },
-            { name: "Formaggio Spalmabile Senza Lattosio", qty: "200 g", category: "Senza Lattosio", notes: "", img: "🧀" },
             { name: "Gouda / Emmental a fette", qty: "1 conf", category: "Latticini e formaggi", notes: "", img: "🥪" },
 
+            // Senza Lattosio
+            { name: "Latte Senza Lattosio", qty: "1 l", category: "Senza Lattosio", notes: "Zymil", img: "🥛" },
+            { name: "Mozzarella Senza Lattosio", qty: "1 pz", category: "Senza Lattosio", notes: "", img: "🧀" },
+            { name: "Yogurt Senza Lattosio", qty: "2 pz", category: "Senza Lattosio", notes: "", img: "🥛" },
+            { name: "Formaggio Spalmabile Senza Lattosio", qty: "200 g", category: "Senza Lattosio", notes: "", img: "🧀" },
+
+            // Salumi
             { name: "Prosciutto Cotto Alta Qualità", qty: "100 g", category: "Salumi", notes: "Banco taglio", img: "🍖" },
             { name: "Prosciutto Crudo di Parma", qty: "100 g", category: "Salumi", notes: "", img: "🍖" },
             { name: "Salame Milano", qty: "100 g", category: "Salumi", notes: "", img: "🥓" },
             { name: "Speck dell'Alto Adige", qty: "100 g", category: "Salumi", notes: "", img: "🥩" },
             { name: "Petto di Tacchino arrosto", qty: "100 g", category: "Salumi", notes: "", img: "🍗" },
 
-            { name: "Latte Parzialmente Scremato", qty: "1 l", category: "Zucchero e latte", notes: "", img: "🥛" },
-            { name: "Latte Senza Lattosio", qty: "1 l", category: "Senza Lattosio", notes: "Zymil", img: "🥛" },
-            { name: "Zucchero Semolato", qty: "1 kg", category: "Zucchero e latte", notes: "", img: "🧂" },
-            { name: "Pasta Spaghetti", qty: "500 g", category: "Zucchero e latte", notes: "Barilla", img: "🍝" },
-            { name: "Pasta Penne Rigate", qty: "500 g", category: "Zucchero e latte", notes: "Barilla", img: "🍝" },
-            { name: "Passata di Pomodoro", qty: "700 g", category: "Zucchero e latte", notes: "Mutti", img: "🥫" },
-            { name: "Olio Extravergine d'Oliva", qty: "1 l", category: "Zucchero e latte", notes: "", img: "🍾" },
-            { name: "Farina di Tipo 00", qty: "1 kg", category: "Zucchero e latte", notes: "", img: "🌾" },
-            { name: "Riso Arborio", qty: "1 kg", category: "Zucchero e latte", notes: "", img: "🍚" },
-            { name: "Tonno in Olio d'Oliva", qty: "3x80 g", category: "Zucchero e latte", notes: "Rio Mare", img: "🐟" },
+            // Dispensa (Pasta, Riso, Farina, Olio, Passata, Scatolame)
+            { name: "Pasta Spaghetti", qty: "500 g", category: "Dispensa", notes: "Barilla", img: "🍝" },
+            { name: "Pasta Penne Rigate", qty: "500 g", category: "Dispensa", notes: "Barilla", img: "🍝" },
+            { name: "Passata di Pomodoro", qty: "700 g", category: "Dispensa", notes: "Mutti", img: "🥫" },
+            { name: "Olio Extravergine d'Oliva", qty: "1 l", category: "Dispensa", notes: "", img: "🍾" },
+            { name: "Farina di Tipo 00", qty: "1 kg", category: "Dispensa", notes: "", img: "🌾" },
+            { name: "Riso Arborio", qty: "1 kg", category: "Dispensa", notes: "", img: "🍚" },
+            { name: "Tonno in Olio d'Oliva", qty: "3x80 g", category: "Dispensa", notes: "Rio Mare", img: "🐟" },
+            { name: "Zucchero Semolato", qty: "1 kg", category: "Dispensa", notes: "", img: "🧂" },
 
+            // Carne
             { name: "Petto di Pollo a fette", qty: "500 g", category: "Carne", notes: "", img: "🍗" },
             { name: "Petto di Tacchino", qty: "500 g", category: "Carne", notes: "", img: "🍗" },
             { name: "Carne Macinata Mista", qty: "400 g", category: "Carne", notes: "", img: "🥩" },
@@ -785,6 +795,7 @@
             { name: "Salsiccia di Suino", qty: "4 pz", category: "Carne", notes: "", img: "🌭" },
             { name: "Hamburger di Tacchino/Pollo", qty: "2 pz", category: "Carne", notes: "", img: "🍔" },
 
+            // Colazione e Bibite
             { name: "Caffè macinato", qty: "250 g", category: "Colazione e Bibite", notes: "Lavazza", img: "☕" },
             { name: "Acqua Naturale", qty: "6x1.5 l", category: "Colazione e Bibite", notes: "", img: "💧" },
             { name: "Acqua Frizzante", qty: "6x1.5 l", category: "Colazione e Bibite", notes: "", img: "🫧" },
@@ -795,11 +806,23 @@
             { name: "Prosecco", qty: "1 pz", category: "Colazione e Bibite", notes: "", img: "🍾" },
             { name: "Red Bull", qty: "1 pz", category: "Colazione e Bibite", notes: "", img: "⚡" },
 
+            // Snack e Dolci
+            { name: "Cioccolato Fondente", qty: "100 g", category: "Snack e Dolci", notes: "", img: "🍫" },
+            { name: "Patatine in sacchetto", qty: "150 g", category: "Snack e Dolci", notes: "", img: "🍟" },
+            { name: "Caramelle / Snack dolci", qty: "1 conf", category: "Snack e Dolci", notes: "", img: "🍬" },
+
+            // Surgelati
             { name: "Pizza Surgelata Margherita", qty: "2 pz", category: "Surgelati", notes: "", img: "🍕" },
             { name: "Spinaci Surgelati a cubetti", qty: "600 g", category: "Surgelati", notes: "", img: "🥬" },
             { name: "Filetti di Merluzzo", qty: "400 g", category: "Surgelati", notes: "", img: "🐟" },
             { name: "Patatine Fritte surgelate", qty: "1 kg", category: "Surgelati", notes: "", img: "🍟" },
 
+            // Igiene Personale
+            { name: "Bagnoschiuma", qty: "1 pz", category: "Igiene Personale", notes: "", img: "🧼" },
+            { name: "Shampoo", qty: "1 pz", category: "Igiene Personale", notes: "", img: "🧴" },
+            { name: "Dentifricio", qty: "1 pz", category: "Igiene Personale", notes: "", img: "🦷" },
+
+            // Casa
             { name: "Carta Igienica", qty: "4 rotoli", category: "Casa", notes: "Scottex", img: "🧻" },
             { name: "Carta Casa / Assorbente", qty: "2 rotoli", category: "Casa", notes: "", img: "🧻" },
             { name: "Detersivo Lavatrice", qty: "25 lavaggi", category: "Casa", notes: "", img: "🧴" },
@@ -811,14 +834,17 @@
 
         let categories = JSON.parse(localStorage.getItem('smart_shopping_categories')) || [
             { name: 'Frutta e Verdura', icon: '🌱' },
+            { name: 'Uova', icon: '🥚' },
             { name: 'Latticini e formaggi', icon: '🧀' },
+            { name: 'Senza Lattosio', icon: '🥛🚫' },
             { name: 'Salumi', icon: '🍖' },
-            { name: 'Zucchero e latte', icon: '🥛' },
+            { name: 'Dispensa', icon: '🛒' },
             { name: 'Carne', icon: '🥩' },
             { name: 'Colazione e Bibite', icon: '☕' },
+            { name: 'Snack e Dolci', icon: '🍫' },
             { name: 'Surgelati', icon: '❄️' },
-            { name: 'Casa', icon: '🏠' },
-            { name: 'Senza Lattosio', icon: '🥛🚫' }
+            { name: 'Igiene Personale', icon: '🧴' },
+            { name: 'Casa', icon: '🏠' }
         ];
 
         let defaultFrequentItems = [
@@ -841,7 +867,7 @@
                 id: 101,
                 title: "Schlutzkrapfen (Ravioli tirolesi)",
                 ingredients: [
-                    { name: "Farina di Tipo 00", qty: "250 g", category: "Zucchero e latte", img: "🌾" },
+                    { name: "Farina di Tipo 00", qty: "250 g", category: "Dispensa", img: "🌾" },
                     { name: "Burro", qty: "100 g", category: "Latticini e formaggi", img: "🧈" },
                     { name: "Ricotta Vaccina", qty: "200 g", category: "Latticini e formaggi", img: "🧀" },
                     { name: "Spinaci Surgelati a cubetti", qty: "300 g", category: "Surgelati", img: "🥬" }
@@ -883,10 +909,12 @@
             "Latticini e formaggi",
             "Senza Lattosio",
             "Salumi",
-            "Zucchero e latte",
+            "Dispensa",
             "Colazione e Bibite",
+            "Snack e Dolci",
             "Carne",
             "Surgelati",
+            "Igiene Personale",
             "Casa"
         ];
 
@@ -1218,7 +1246,7 @@
 
                 let qty = "1 pz";
                 let name = cleanLine;
-                let category = "Zucchero e latte";
+                let category = "Dispensa";
                 let img = "🍳";
 
                 const qtyMatch = cleanLine.match(/^([\d/.,]+\s*(?:g|kg|ml|l|pz|cucchiai|cucchiaini|bicchieri|conf|fette)?)\b/i);
@@ -1265,7 +1293,7 @@
                         id: Date.now() + Math.random(),
                         name: ing.name,
                         qty: ing.qty || '1 pz',
-                        category: ing.category || 'Zucchero e latte',
+                        category: ing.category || 'Dispensa',
                         img: ing.img || '🍳',
                         sourceRecipe: recipe.title,
                         completed: false
