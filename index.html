@@ -38,9 +38,10 @@
             if (unsubscribe) unsubscribe();
 
             unsubscribe = onSnapshot(docRef, (docSnap) => {
-                const currentDataVersion = "v4_nussbaumer_trisi_scontrini";
+                const currentDataVersion = "v5_scontrini_definitivi";
                 const localVersion = localStorage.getItem('smart_shopping_version');
 
+                // Se la versione sul cloud corrisponde e contiene i dati aggiornati, li usiamo
                 if (docSnap.exists() && localVersion === currentDataVersion) {
                     const cloudData = docSnap.data();
                     if (cloudData.items) state.items = cloudData.items;
@@ -57,6 +58,7 @@
                     saveLocalState();
                     render();
                 } else {
+                    // Forzatura iniziale: carichiamo tutti i prodotti estratti dagli scontrini nel database e nel cloud
                     categories = defaultCategories;
                     state.frequent = defaultFrequentItems;
                     localStorage.setItem('smart_shopping_version', currentDataVersion);
@@ -791,7 +793,7 @@
             { name: "Fesa di Tacchino", qty: "100 g", category: "Salumi", notes: "", img: "🍗" },
             { name: "S/G Petto Pollo AIA", qty: "100 g", category: "Salumi", notes: "", img: "🍗" },
 
-            // Dispensa (Pasta, Riso, Farina, Olio, Passata, Scatolame, Condimenti)
+            // Dispensa
             { name: "Passata Petti", qty: "700 g", category: "Dispensa", notes: "", img: "🥫" },
             { name: "P/Sfoglia Primia / Sfoglia Primia", qty: "1 pz", category: "Dispensa", notes: "", img: "🥮" },
             { name: "Farro Soffiato Colfi", qty: "250 g", category: "Dispensa", notes: "", img: "🌾" },
@@ -880,19 +882,31 @@
 
         let categories = defaultCategories;
 
+        // Inserimento completo di tutti i prodotti estratti dagli scontrini come base per le frequenti
         let defaultFrequentItems = [
-            { id: 1, name: 'Latte Senza Lattosio', qty: '1 l', category: 'Senza Lattosio', notes: 'Zymil', count: 12, img: '🥛' },
-            { id: 2, name: 'Yogurt Greco', qty: '2 pz', category: 'Latticini e formaggi', notes: 'Senza lattosio', count: 9, img: '🥛' },
-            { id: 3, name: 'Kefir Milk / Mousse / Bere', qty: '500 ml', category: 'Latticini e formaggi', notes: '', count: 8, img: '🥛' },
-            { id: 4, name: 'Ricotta Vaccina', qty: '250 g', category: 'Latticini e formaggi', notes: '', count: 8, img: '🧀' },
-            { id: 5, name: 'Mozzarella Senza Lattosio', qty: '1 pz', category: 'Senza Lattosio', notes: '', count: 7, img: '🧀' },
-            { id: 6, name: 'Pomodori Datterini', qty: '500 g', category: 'Frutta e Verdura', notes: '', count: 7, img: '🍅' },
-            { id: 7, name: 'Avocados', qty: '2 pz', category: 'Frutta e Verdura', notes: '', count: 6, img: '🥑' },
-            { id: 8, name: 'Petto di Tacchino', qty: '500 g', category: 'Carne', notes: '', count: 6, img: '🍗' },
-            { id: 9, name: 'Carne Macinata Mista', qty: '400 g', category: 'Carne', notes: '', count: 6, img: '🥩' },
-            { id: 10, name: 'Prosecco Col Solivo', qty: '750 ml', category: 'Colazione e Bibite', notes: '', count: 5, img: '🍾' },
-            { id: 11, name: 'Red Bull', qty: '250 ml', category: 'Colazione e Bibite', notes: '', count: 5, img: '⚡' },
-            { id: 12, name: 'Carta Igienica', qty: '1 pacco', category: 'Casa', notes: '', count: 5, img: '🧻' }
+            { id: 1, name: 'Cipolla Rossa', qty: '1 kg', category: 'Frutta e Verdura', notes: '', count: 3, img: '🧅' },
+            { id: 2, name: 'Pomodori Datterini', qty: '500 g', category: 'Frutta e Verdura', notes: '', count: 5, img: '🍅' },
+            { id: 3, name: 'Zucchine', qty: '1 kg', category: 'Frutta e Verdura', notes: '', count: 4, img: '🥒' },
+            { id: 4, name: 'Avocados', qty: '2 pz', category: 'Frutta e Verdura', notes: '', count: 4, img: '🥑' },
+            { id: 5, name: 'Banane', qty: '1 kg', category: 'Frutta e Verdura', notes: '', count: 3, img: '🍌' },
+            { id: 6, name: 'Carote', qty: '1 kg', category: 'Frutta e Verdura', notes: '', count: 3, img: '🥕' },
+            { id: 7, name: 'Patate Pasta Gialla', qty: '2 kg', category: 'Frutta e Verdura', notes: '', count: 3, img: '🥔' },
+            { id: 8, name: 'Uova Media Primia', qty: '6 pz', category: 'Uova', notes: '', count: 3, img: '🥚' },
+            { id: 9, name: 'Philadelphia Senza Lattosio', qty: '200 g', category: 'Senza Lattosio', notes: '', count: 4, img: '🧀' },
+            { id: 10, name: 'Mozzarella Senza Lattosio', qty: '1 pz', category: 'Senza Lattosio', notes: '', count: 4, img: '🧀' },
+            { id: 11, name: 'Certosa Galbani', qty: '165 g', category: 'Latticini e formaggi', notes: '', count: 3, img: '🧀' },
+            { id: 12, name: 'G+G Yogurt Mila', qty: '150 g', category: 'Latticini e formaggi', notes: '', count: 6, img: '🥛' },
+            { id: 13, name: 'Kefir Milk / Mousse / Bere', qty: '500 ml', category: 'Latticini e formaggi', notes: '', count: 5, img: '🥛' },
+            { id: 14, name: 'Burro Primia', qty: '250 g', category: 'Latticini e formaggi', notes: '', count: 3, img: '🧈' },
+            { id: 15, name: 'Passata Petti', qty: '700 g', category: 'Dispensa', notes: '', count: 3, img: '🥫' },
+            { id: 16, name: 'Primia Piadine R', qty: '3 pz', category: 'Dispensa', notes: '', count: 3, img: '🫓' },
+            { id: 17, name: 'Macinato Bov/Sui', qty: '400 g', category: 'Carne', notes: '', count: 3, img: '🥩' },
+            { id: 18, name: 'Red Bull', qty: '250 ml', category: 'Colazione e Bibite', notes: '', count: 5, img: '⚡' },
+            { id: 19, name: 'Birra Non Filtrata Ichnusa', qty: '50 cl', category: 'Colazione e Bibite', notes: '', count: 4, img: '🍺' },
+            { id: 20, name: 'Prosecco Col Solivo', qty: '750 ml', category: 'Colazione e Bibite', notes: '', count: 4, img: '🍾' },
+            { id: 21, name: 'Nettare Pera Yoga', qty: '3x200 ml', category: 'Colazione e Bibite', notes: '', count: 4, img: '🧃' },
+            { id: 22, name: 'Frollini Mandorla / Cioccodi\' / Nocciola', qty: '400 g', category: 'Snack e Dolci', notes: '', count: 3, img: '🍪' },
+            { id: 23, name: 'Assorbenti Lines', qty: '1 conf', category: 'Igiene Personale', notes: '', count: 2, img: '🛡️' }
         ];
 
         let defaultRecipes = [
