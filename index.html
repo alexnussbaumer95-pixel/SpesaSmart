@@ -392,9 +392,9 @@
 
         .item-card {
             display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 12px;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 12px;
@@ -410,11 +410,16 @@
         }
 
         .item-checkbox {
-            width: 22px;
-            height: 22px;
-            margin-top: 2px;
+            width: 20px;
+            height: 20px;
             accent-color: var(--success-color);
             cursor: pointer;
+        }
+
+        .item-img {
+            font-size: 1.6rem;
+            min-width: 32px;
+            text-align: center;
         }
 
         .item-details {
@@ -423,25 +428,25 @@
 
         .item-title {
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 0.95rem;
             margin-bottom: 2px;
         }
 
         .item-meta {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
         }
 
         .badge {
             background: var(--bg-color);
-            padding: 2px 6px;
-            border-radius: 6px;
+            padding: 1px 5px;
+            border-radius: 5px;
             border: 1px solid var(--border-color);
-            font-size: 0.75rem;
+            font-size: 0.7rem;
         }
 
         .badge-lactose {
@@ -457,7 +462,7 @@
             background: var(--bg-color);
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            padding: 1px 6px;
+            padding: 1px 4px;
         }
 
         .qty-btn {
@@ -465,9 +470,9 @@
             border: none;
             color: var(--text-color);
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: bold;
-            padding: 0 4px;
+            padding: 0 3px;
         }
 
         .qty-btn:hover {
@@ -563,6 +568,9 @@
                 <div class="form-group">
                     <input type="text" id="quick-notes" placeholder="Note (es. marca specifica, offerta)">
                 </div>
+                <!-- Campo nascosto per memorizzare l'immagine/icona selezionata -->
+                <input type="hidden" id="quick-img" value="📦">
+
                 <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
                     <input type="checkbox" id="quick-recurring" checked style="width: 20px; height: 20px; accent-color: var(--accent-color); cursor: pointer;">
                     <label for="quick-recurring" style="font-size: 0.9rem; cursor: pointer;">Salva nelle spese ripetitive / frequenti</label>
@@ -577,7 +585,10 @@
         <div class="filters-container" id="filters-container"></div>
 
         <div class="card">
-            <h2 style="margin-bottom: 12px;">📋 Lista Attiva</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h2 style="margin-bottom: 0;">📋 Lista Attiva</h2>
+                <button class="btn-secondary" onclick="sortByRoute()" style="padding: 6px 10px; font-size: 0.8rem;" title="Riordina secondo il percorso al supermercato">🛒 Ordina per percorso</button>
+            </div>
             <ul class="item-list" id="active-list"></ul>
             <div style="display: flex; gap: 8px; margin-top: 16px;">
                 <button class="btn-secondary" onclick="clearCompleted()" style="flex: 1;">🗑️ Elimina spuntati</button>
@@ -682,70 +693,80 @@
     </div>
 
     <script>
+        // DATABASE PRODOTTI CON IMMAGINE/EMOJI ILLUSTRATIVA ASSOCIATA
         const supermarketDatabase = [
-            { name: "Mele Golden", qty: "1 kg", category: "Frutta e Verdura", notes: "" },
-            { name: "Banane", qty: "1 kg", category: "Frutta e Verdura", notes: "" },
-            { name: "Pomodori Ciliegino", qty: "500 g", category: "Frutta e Verdura", notes: "" },
-            { name: "Insalata Indivia / Iceberg", qty: "1 pz", category: "Frutta e Verdura", notes: "" },
-            { name: "Zucchine", qty: "1 kg", category: "Frutta e Verdura", notes: "" },
-            { name: "Carote", qty: "1 kg", category: "Frutta e Verdura", notes: "" },
-            { name: "Patate", qty: "2 kg", category: "Frutta e Verdura", notes: "" },
-            { name: "Limoni", qty: "500 g", category: "Frutta e Verdura", notes: "" },
-            { name: "Cipolle", qty: "1 kg", category: "Frutta e Verdura", notes: "" },
+            // Frutta e Verdura
+            { name: "Mele Golden", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🍎" },
+            { name: "Banane", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🍌" },
+            { name: "Pomodori Ciliegino", qty: "500 g", category: "Frutta e Verdura", notes: "", img: "🍅" },
+            { name: "Insalata Indivia / Iceberg", qty: "1 pz", category: "Frutta e Verdura", notes: "", img: "🥗" },
+            { name: "Zucchine", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🥒" },
+            { name: "Carote", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🥕" },
+            { name: "Patate", qty: "2 kg", category: "Frutta e Verdura", notes: "", img: "🥔" },
+            { name: "Limoni", qty: "500 g", category: "Frutta e Verdura", notes: "", img: "🍋" },
+            { name: "Cipolle", qty: "1 kg", category: "Frutta e Verdura", notes: "", img: "🧅" },
             
-            { name: "Mozzarella Fresca", qty: "3 pz", category: "Latticini e formaggi", notes: "" },
-            { name: "Parmigiano Reggiano DOP", qty: "250 g", category: "Latticini e formaggi", notes: "Stagionato" },
-            { name: "Yogurt Greco", qty: "2 pz", category: "Latticini e formaggi", notes: "" },
-            { name: "Burro", qty: "250 g", category: "Latticini e formaggi", notes: "" },
-            { name: "Ricotta Vaccina", qty: "250 g", category: "Latticini e formaggi", notes: "" },
-            { name: "Gouda / Emmental a fette", qty: "1 conf", category: "Latticini e formaggi", notes: "" },
+            // Latticini e formaggi
+            { name: "Mozzarella Fresca", qty: "3 pz", category: "Latticini e formaggi", notes: "", img: "🧀" },
+            { name: "Parmigiano Reggiano DOP", qty: "250 g", category: "Latticini e formaggi", notes: "Stagionato", img: "🧀" },
+            { name: "Yogurt Greco", qty: "2 pz", category: "Latticini e formaggi", notes: "", img: "🥛" },
+            { name: "Burro", qty: "250 g", category: "Latticini e formaggi", notes: "", img: "🧈" },
+            { name: "Ricotta Vaccina", qty: "250 g", category: "Latticini e formaggi", notes: "", img: "🧀" },
+            { name: "Gouda / Emmental a fette", qty: "1 conf", category: "Latticini e formaggi", notes: "", img: "🥪" },
 
-            { name: "Prosciutto Cotto Alta Qualità", qty: "100 g", category: "Salumi", notes: "Banco taglio" },
-            { name: "Prosciutto Crudo di Parma", qty: "100 g", category: "Salumi", notes: "" },
-            { name: "Salame Milano", qty: "100 g", category: "Salumi", notes: "" },
-            { name: "Speck dell'Alto Adige", qty: "100 g", category: "Salumi", notes: "" },
-            { name: "Petto di Tacchino arrosto", qty: "100 g", category: "Salumi", notes: "" },
+            // Salumi
+            { name: "Prosciutto Cotto Alta Qualità", qty: "100 g", category: "Salumi", notes: "Banco taglio", img: "🍖" },
+            { name: "Prosciutto Crudo di Parma", qty: "100 g", category: "Salumi", notes: "", img: "🍖" },
+            { name: "Salame Milano", qty: "100 g", category: "Salumi", notes: "", img: "🥓" },
+            { name: "Speck dell'Alto Adige", qty: "100 g", category: "Salumi", notes: "", img: "🥩" },
+            { name: "Petto di Tacchino arrosto", qty: "100 g", category: "Salumi", notes: "", img: "🍗" },
 
-            { name: "Latte Parzialmente Scremato", qty: "1 l", category: "Zucchero e latte", notes: "" },
-            { name: "Zucchero Semolato", qty: "1 kg", category: "Zucchero e latte", notes: "" },
-            { name: "Pasta Spaghetti", qty: "500 g", category: "Zucchero e latte", notes: "Barilla" },
-            { name: "Pasta Penne Rigate", qty: "500 g", category: "Zucchero e latte", notes: "Barilla" },
-            { name: "Passata di Pomodoro", qty: "700 g", category: "Zucchero e latte", notes: "Mutti" },
-            { name: "Olio Extravergine d'Oliva", qty: "1 l", category: "Zucchero e latte", notes: "" },
-            { name: "Farina di Tipo 00", qty: "1 kg", category: "Zucchero e latte", notes: "" },
-            { name: "Riso Arborio", qty: "1 kg", category: "Zucchero e latte", notes: "" },
-            { name: "Tonno in Olio d'Oliva", qty: "3x80 g", category: "Zucchero e latte", notes: "Rio Mare" },
+            // Zucchero e latte
+            { name: "Latte Parzialmente Scremato", qty: "1 l", category: "Zucchero e latte", notes: "", img: "🥛" },
+            { name: "Zucchero Semolato", qty: "1 kg", category: "Zucchero e latte", notes: "", img: "🧂" },
+            { name: "Pasta Spaghetti", qty: "500 g", category: "Zucchero e latte", notes: "Barilla", img: "🍝" },
+            { name: "Pasta Penne Rigate", qty: "500 g", category: "Zucchero e latte", notes: "Barilla", img: "🍝" },
+            { name: "Passata di Pomodoro", qty: "700 g", category: "Zucchero e latte", notes: "Mutti", img: "🥫" },
+            { name: "Olio Extravergine d'Oliva", qty: "1 l", category: "Zucchero e latte", notes: "", img: "🍾" },
+            { name: "Farina di Tipo 00", qty: "1 kg", category: "Zucchero e latte", notes: "", img: "🌾" },
+            { name: "Riso Arborio", qty: "1 kg", category: "Zucchero e latte", notes: "", img: "🍚" },
+            { name: "Tonno in Olio d'Oliva", qty: "3x80 g", category: "Zucchero e latte", notes: "Rio Mare", img: "🐟" },
 
-            { name: "Petto di Pollo a fette", qty: "500 g", category: "Carne", notes: "" },
-            { name: "Carne Macinata Mista", qty: "400 g", category: "Carne", notes: "" },
-            { name: "Bistecche di Bovino Adulto", qty: "2 pz", category: "Carne", notes: "" },
-            { name: "Salsiccia di Suino", qty: "4 pz", category: "Carne", notes: "" },
-            { name: "Hamburger di Tacchino/Pollo", qty: "2 pz", category: "Carne", notes: "" },
+            // Carne
+            { name: "Petto di Pollo a fette", qty: "500 g", category: "Carne", notes: "", img: "🍗" },
+            { name: "Carne Macinata Mista", qty: "400 g", category: "Carne", notes: "", img: "🥩" },
+            { name: "Bistecche di Bovino Adulto", qty: "2 pz", category: "Carne", notes: "", img: "🥩" },
+            { name: "Salsiccia di Suino", qty: "4 pz", category: "Carne", notes: "", img: "🌭" },
+            { name: "Hamburger di Tacchino/Pollo", qty: "2 pz", category: "Carne", notes: "", img: "🍔" },
 
-            { name: "Caffè macinato", qty: "250 g", category: "Colazione e Bibite", notes: "Lavazza" },
-            { name: "Acqua Naturale", qty: "6x1.5 l", category: "Colazione e Bibite", notes: "" },
-            { name: "Acqua Frizzante", qty: "6x1.5 l", category: "Colazione e Bibite", notes: "" },
-            { name: "Biscotti per Colazione", qty: "400 g", category: "Colazione e Bibite", notes: "" },
-            { name: "Fette Biscottate", qty: "1 conf", category: "Colazione e Bibite", notes: "" },
-            { name: "Cereali Muesli / Corn Flakes", qty: "375 g", category: "Colazione e Bibite", notes: "" },
-            { name: "Coca Cola / Bibita gassata", qty: "1.5 l", category: "Colazione e Bibite", notes: "" },
+            // Colazione e Bibite
+            { name: "Caffè macinato", qty: "250 g", category: "Colazione e Bibite", notes: "Lavazza", img: "☕" },
+            { name: "Acqua Naturale", qty: "6x1.5 l", category: "Colazione e Bibite", notes: "", img: "💧" },
+            { name: "Acqua Frizzante", qty: "6x1.5 l", category: "Colazione e Bibite", notes: "", img: "🫧" },
+            { name: "Biscotti per Colazione", qty: "400 g", category: "Colazione e Bibite", notes: "", img: "🍪" },
+            { name: "Fette Biscottate", qty: "1 conf", category: "Colazione e Bibite", notes: "", img: "🍞" },
+            { name: "Cereali Muesli / Corn Flakes", qty: "375 g", category: "Colazione e Bibite", notes: "", img: "🥣" },
+            { name: "Coca Cola / Bibita gassata", qty: "1.5 l", category: "Colazione e Bibite", notes: "", img: "🥤" },
 
-            { name: "Pizza Surgelata Margherita", qty: "2 pz", category: "Surgelati", notes: "" },
-            { name: "Spinaci Surgelati a cubetti", qty: "600 g", category: "Surgelati", notes: "" },
-            { name: "Filetti di Merluzzo", qty: "400 g", category: "Surgelati", notes: "" },
-            { name: "Patatine Fritte surgelate", qty: "1 kg", category: "Surgelati", notes: "" },
+            // Surgelati
+            { name: "Pizza Surgelata Margherita", qty: "2 pz", category: "Surgelati", notes: "", img: "🍕" },
+            { name: "Spinaci Surgelati a cubetti", qty: "600 g", category: "Surgelati", notes: "", img: "🥬" },
+            { name: "Filetti di Merluzzo", qty: "400 g", category: "Surgelati", notes: "", img: "🐟" },
+            { name: "Patatine Fritte surgelate", qty: "1 kg", category: "Surgelati", notes: "", img: "🍟" },
 
-            { name: "Carta Igienica", qty: "4 rotoli", category: "Casa", notes: "Scottex" },
-            { name: "Carta Casa / Assorbente", qty: "2 rotoli", category: "Casa", notes: "" },
-            { name: "Detersivo Lavatrice", qty: "25 lavaggi", category: "Casa", notes: "" },
-            { name: "Detersivo Piatti", qty: "1 l", category: "Casa", notes: "" },
-            { name: "Sacchetti Immondizia", qty: "1 rotolo", category: "Casa", notes: "" },
-            { name: "Spugne per piatti", qty: "3 pz", category: "Casa", notes: "" },
+            // Casa
+            { name: "Carta Igienica", qty: "4 rotoli", category: "Casa", notes: "Scottex", img: "🧻" },
+            { name: "Carta Casa / Assorbente", qty: "2 rotoli", category: "Casa", notes: "", img: "🧻" },
+            { name: "Detersivo Lavatrice", qty: "25 lavaggi", category: "Casa", notes: "", img: "🧴" },
+            { name: "Detersivo Piatti", qty: "1 l", category: "Casa", notes: "", img: "🧼" },
+            { name: "Sacchetti Immondizia", qty: "1 rotolo", category: "Casa", notes: "", img: "🗑️" },
+            { name: "Spugne per piatti", qty: "3 pz", category: "Casa", notes: "", img: "🧽" },
 
-            { name: "Latte Senza Lattosio", qty: "1 l", category: "Senza Lattosio", notes: "Zymil" },
-            { name: "Mozzarella Senza Lattosio", qty: "1 pz", category: "Senza Lattosio", notes: "" },
-            { name: "Yogurt Senza Lattosio", qty: "2 pz", category: "Senza Lattosio", notes: "" },
-            { name: "Formaggio Spalmabile Senza Lattosio", qty: "200 g", category: "Senza Lattosio", notes: "" }
+            // Senza Lattosio
+            { name: "Latte Senza Lattosio", qty: "1 l", category: "Senza Lattosio", notes: "Zymil", img: "🥛" },
+            { name: "Mozzarella Senza Lattosio", qty: "1 pz", category: "Senza Lattosio", notes: "", img: "🧀" },
+            { name: "Yogurt Senza Lattosio", qty: "2 pz", category: "Senza Lattosio", notes: "", img: "🥛" },
+            { name: "Formaggio Spalmabile Senza Lattosio", qty: "200 g", category: "Senza Lattosio", notes: "", img: "🧀" }
         ];
 
         let categories = JSON.parse(localStorage.getItem('smart_shopping_categories')) || [
@@ -761,11 +782,11 @@
         ];
 
         let defaultFrequentItems = [
-            { id: 1, name: 'Latte Senza Lattosio', qty: '1 l', category: 'Senza Lattosio', notes: 'Zymil', count: 12 },
-            { id: 2, name: 'Yogurt Greco', qty: '2 pz', category: 'Latticini e formaggi', notes: 'Senza lattosio', count: 9 },
-            { id: 3, name: 'Pane in cassetta', qty: '1 conf', category: 'Colazione e Bibite', notes: '', count: 7 },
-            { id: 4, name: 'Acqua naturale', qty: '6 bottiglie', category: 'Colazione e Bibite', notes: '', count: 6 },
-            { id: 5, name: 'Carta Igienica', qty: '1 pacco', category: 'Casa', notes: '', count: 5 }
+            { id: 1, name: 'Latte Senza Lattosio', qty: '1 l', category: 'Senza Lattosio', notes: 'Zymil', count: 12, img: '🥛' },
+            { id: 2, name: 'Yogurt Greco', qty: '2 pz', category: 'Latticini e formaggi', notes: 'Senza lattosio', count: 9, img: '🥛' },
+            { id: 3, name: 'Pane in cassetta', qty: '1 conf', category: 'Colazione e Bibite', notes: '', count: 7, img: '🍞' },
+            { id: 4, name: 'Acqua naturale', qty: '6 bottiglie', category: 'Colazione e Bibite', notes: '', count: 6, img: '💧' },
+            { id: 5, name: 'Carta Igienica', qty: '1 pacco', category: 'Casa', notes: '', count: 5, img: '🧻' }
         ];
 
         let state = {
@@ -777,9 +798,28 @@
 
         state.frequent.forEach((f, index) => {
             if (!f.id) f.id = Date.now() + index;
+            if (!f.img) f.img = '📦';
+        });
+
+        state.items.forEach(i => {
+            if (!i.img) i.img = '📦';
         });
 
         let confirmCallback = null;
+
+        // ORDINE DEL PERCORSO AL SUPERMERCATO
+        const supermarketRouteOrder = [
+            "Frutta e Verdura",
+            "Uova",
+            "Latticini e formaggi",
+            "Senza Lattosio",
+            "Salumi",
+            "Zucchero e latte",
+            "Colazione e Bibite",
+            "Carne",
+            "Surgelati",
+            "Casa"
+        ];
 
         function saveLocalState() {
             localStorage.setItem('smart_shopping_items', JSON.stringify(state.items));
@@ -861,19 +901,20 @@
             }
 
             dropdown.innerHTML = matches.map(m => `
-                <div class="autocomplete-suggestion" onclick="selectDatabaseItem('${escapeHtml(m.name)}', '${escapeHtml(m.qty)}', '${escapeHtml(m.category)}', '${escapeHtml(m.notes)}')">
-                    <span><strong>${escapeHtml(m.name)}</strong> <small style="color: var(--text-secondary);">(${m.category})</small></span>
+                <div class="autocomplete-suggestion" onclick="selectDatabaseItem('${escapeHtml(m.name)}', '${escapeHtml(m.qty)}', '${escapeHtml(m.category)}', '${escapeHtml(m.notes)}', '${m.img || '📦'}')">
+                    <span>${m.img || '📦'} <strong>${escapeHtml(m.name)}</strong> <small style="color: var(--text-secondary);">(${m.category})</small></span>
                     <span style="color: var(--text-secondary); font-size: 0.8rem;">Seleziona</span>
                 </div>
             `).join('');
             dropdown.style.display = 'block';
         }
 
-        function selectDatabaseItem(name, qty, category, notes) {
+        function selectDatabaseItem(name, qty, category, notes, img) {
             document.getElementById('quick-name').value = name;
             document.getElementById('quick-qty').value = qty;
             document.getElementById('quick-category').value = category;
             document.getElementById('quick-notes').value = notes;
+            document.getElementById('quick-img').value = img;
             document.getElementById('autocomplete-list').style.display = 'none';
         }
 
@@ -981,6 +1022,7 @@
                 activeList.innerHTML = filtered.map(item => `
                     <li class="item-card ${item.completed ? 'completed' : ''}">
                         <input type="checkbox" class="item-checkbox" ${item.completed ? 'checked' : ''} onclick="toggleItem(${item.id})">
+                        <div class="item-img">${item.img || '📦'}</div>
                         <div class="item-details">
                             <div class="item-title">${escapeHtml(item.name)}</div>
                             <div class="item-meta">
@@ -1017,9 +1059,12 @@
             } else {
                 frequentList.innerHTML = sortedFreq.map((freq) => `
                     <div class="frequent-item">
-                        <div>
-                            <strong>${escapeHtml(freq.name)}</strong>
-                            <div style="font-size: 0.75rem; color: var(--text-secondary);">${escapeHtml(freq.category)} ${freq.qty ? '• ' + escapeHtml(freq.qty) : ''}</div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.4rem;">${freq.img || '📦'}</span>
+                            <div>
+                                <strong>${escapeHtml(freq.name)}</strong>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary);">${escapeHtml(freq.category)} ${freq.qty ? '• ' + escapeHtml(freq.qty) : ''}</div>
+                            </div>
                         </div>
                         <div style="display: flex; gap: 6px;">
                             <button type="button" onclick="addFrequent(${freq.id})" style="padding: 6px 10px; font-size: 0.8rem;">➕ Aggiungi</button>
@@ -1048,6 +1093,27 @@
             renderDepartmentManagement();
         }
 
+        function sortByRoute() {
+            state.items.sort((a, b) => {
+                if (a.completed !== b.completed) {
+                    return a.completed ? 1 : -1;
+                }
+                
+                let indexA = supermarketRouteOrder.indexOf(a.category);
+                let indexB = supermarketRouteOrder.indexOf(b.category);
+
+                if (indexA === -1) indexA = 999;
+                if (indexB === -1) indexB = 999;
+
+                return indexA - indexB;
+            });
+
+            saveState();
+            render();
+            state.currentFilter = 'Tutti';
+            renderFilters();
+        }
+
         function adjustQty(id, delta) {
             const item = state.items.find(i => i.id === id);
             if (!item) return;
@@ -1067,7 +1133,7 @@
             render();
         }
 
-        function addOrUpdateActiveItem(newName, newQty, newCategory, newNotes) {
+        function addOrUpdateActiveItem(newName, newQty, newCategory, newNotes, newImg) {
             const existingItem = state.items.find(i => i.name.toLowerCase() === newName.toLowerCase() && i.category === newCategory);
 
             if (existingItem) {
@@ -1088,6 +1154,9 @@
                 if (newNotes && !existingItem.notes.includes(newNotes)) {
                     existingItem.notes = existingItem.notes ? `${existingItem.notes}, ${newNotes}` : newNotes;
                 }
+                if (newImg && newImg !== '📦') {
+                    existingItem.img = newImg;
+                }
                 existingItem.completed = false;
             } else {
                 state.items.push({
@@ -1096,6 +1165,7 @@
                     qty: newQty || '',
                     category: newCategory,
                     notes: newNotes || '',
+                    img: newImg || '📦',
                     completed: false
                 });
             }
@@ -1107,11 +1177,12 @@
             const qty = document.getElementById('quick-qty').value.trim();
             const category = document.getElementById('quick-category').value;
             const notes = document.getElementById('quick-notes').value.trim();
+            const img = document.getElementById('quick-img').value;
             const isRecurring = document.getElementById('quick-recurring').checked;
 
             if (!name) return;
 
-            addOrUpdateActiveItem(name, qty, category, notes);
+            addOrUpdateActiveItem(name, qty, category, notes, img);
 
             if (isRecurring) {
                 const existing = state.frequent.find(f => f.name.toLowerCase() === name.toLowerCase());
@@ -1120,8 +1191,9 @@
                     existing.qty = qty || existing.qty;
                     existing.category = category;
                     existing.notes = notes || existing.notes;
+                    if (img && img !== '📦') existing.img = img;
                 } else {
-                    state.frequent.push({ id: Date.now() + 1, name, qty, category, notes, count: 1 });
+                    state.frequent.push({ id: Date.now() + 1, name, qty, category, notes, img: img || '📦', count: 1 });
                 }
             }
 
@@ -1129,6 +1201,7 @@
             document.getElementById('quick-name').value = '';
             document.getElementById('quick-qty').value = '';
             document.getElementById('quick-notes').value = '';
+            document.getElementById('quick-img').value = '📦';
             document.getElementById('quick-recurring').checked = true;
             
             switchTab('attiva', document.querySelectorAll('.nav-item')[1]);
@@ -1281,7 +1354,8 @@
                 freq.name, 
                 addQtyPrompt.trim(), 
                 freq.category || categories[0]?.name || 'Colazione e Bibite', 
-                freq.notes || ''
+                freq.notes || '',
+                freq.img || '📦'
             );
 
             saveState();
