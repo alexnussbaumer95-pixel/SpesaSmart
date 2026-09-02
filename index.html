@@ -635,17 +635,14 @@
     <!-- TAB 4: RICETTE & LISTA DEDICATA -->
     <div id="view-ricette" class="view">
         <div class="card">
-            <h2>🍳 Aggiungi Nuova Ricetta (Testo o Screenshot)</h2>
-            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;">Incolla il testo oppure carica uno screenshot/immagine della ricetta per estrarre gli ingredienti in automatico:</p>
+            <h2>🍳 Aggiungi Nuova Ricetta</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;">Incolla qui sotto gli ingredienti copiati (uno per riga):</p>
             <form onsubmit="saveNewRecipe(event)">
                 <div class="form-group">
-                    <input type="text" id="recipe-title" placeholder="Nome della ricetta (es. Parmigiana)" required autocomplete="off">
+                    <input type="text" id="recipe-title" placeholder="Nome della ricetta (es. Piadine)" required autocomplete="off">
                 </div>
                 <div class="form-group">
-                    <input type="file" id="recipe-image-input" accept="image/*" onchange="handleImageOCR(event)" style="font-size: 0.85rem; padding: 8px;">
-                </div>
-                <div class="form-group">
-                    <textarea id="recipe-raw-text" rows="4" placeholder="Gli ingredienti appariranno qui dopo il caricamento o potrai scriverli..." required></textarea>
+                    <textarea id="recipe-raw-text" rows="5" placeholder="Incolla qui gli ingredienti (es. Farina 00 350 g, Acqua 175 g...)" required></textarea>
                 </div>
                 <button type="submit" style="width: 100%;">Salva Ricetta</button>
             </form>
@@ -960,7 +957,6 @@
 
         let categories = defaultCategories;
 
-        // Base completa ripristinata con i prodotti frequenti originari degli scontrini + integrazioni
         let defaultFrequentItems = [
             { id: 1, name: 'Cipolla Rossa', qty: '1 kg', category: 'Frutta e Verdura', notes: '', count: 3, img: '🧅' },
             { id: 2, name: 'Pomodori Datterini', qty: '500 g', category: 'Frutta e Verdura', notes: '', count: 5, img: '🍅' },
@@ -1380,28 +1376,6 @@
             }
         }
 
-        function handleImageOCR(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
-                    
-                    const textArea = document.getElementById('recipe-raw-text');
-                    textArea.value = "Ingrediente estratto da screenshot (caricato con successo):\n- Farina\n- Uova\n- Burro\n(Modifica o aggiungi gli ingredienti reali qui sotto)";
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
         function saveNewRecipe(e) {
             e.preventDefault();
             const title = document.getElementById('recipe-title').value.trim();
@@ -1413,7 +1387,7 @@
 
             lines.forEach(line => {
                 let cleanLine = line.trim();
-                if (!cleanLine || cleanLine.includes("estratto da screenshot")) return;
+                if (!cleanLine) return;
                 cleanLine = cleanLine.replace(/^[-*•]\s*/, '');
 
                 let matchedDbItem = supermarketDatabase.find(dbItem => cleanLine.toLowerCase().includes(dbItem.name.toLowerCase()));
@@ -1423,7 +1397,7 @@
                 let category = "Dispensa";
                 let img = "🍳";
 
-                const qtyMatch = cleanLine.match(/^([\d/.,]+\s*(?:g|kg|ml|l|pz|cucchiai|cucchiaini|bicchieri|conf|fette)?)\b/i);
+                const qtyMatch = cleanLine.match(/^([\d/.,]+\s*(?:g|kg|ml|l|pz|cucchiai|cucchiaini|bicchieri|conf|fette|pizzico)?)\b/i);
                 if (qtyMatch) {
                     qty = qtyMatch[1].trim();
                     name = cleanLine.replace(qtyMatch[0], '').trim();
@@ -1452,7 +1426,6 @@
             saveState();
             document.getElementById('recipe-title').value = '';
             document.getElementById('recipe-raw-text').value = '';
-            document.getElementById('recipe-image-input').value = '';
             render();
             alert("Ricetta aggiunta con successo!");
         }
